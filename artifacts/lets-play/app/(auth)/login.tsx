@@ -39,7 +39,7 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace("/(tabs)/explore");
     } catch (e: any) {
-      setError(e.message ?? "Login failed");
+      setError(e.message ?? "Login failed. Please check your credentials.");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
@@ -47,13 +47,13 @@ export default function LoginScreen() {
   };
 
   const handleDemo = async () => {
+    setError("");
     setLoading(true);
     try {
-      await signIn("demo@letsplay.app", "password123");
-      router.replace("/(tabs)/explore");
-    } catch {
       await signIn("jordan@example.com", "password123");
       router.replace("/(tabs)/explore");
+    } catch (e: any) {
+      setError("Demo login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
+    flex: 1,
   },
   primaryBtn: {
     height: 54,

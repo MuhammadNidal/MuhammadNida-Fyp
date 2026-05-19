@@ -31,9 +31,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadData = useCallback(async () => {
+    setIsLoading(true);
     try {
       const gamesRaw = await AsyncStorage.getItem(GAMES_KEY);
       if (!gamesRaw) {
@@ -60,6 +61,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       } else {
         setConversations(JSON.parse(convosRaw));
       }
+    } catch {
+      setGames(MOCK_GAMES);
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +70,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (currentUser) loadData();
+    else {
+      setGames([]);
+      setConversations([]);
+    }
   }, [currentUser, loadData]);
 
   const saveGames = useCallback(async (updated: Game[]) => {
