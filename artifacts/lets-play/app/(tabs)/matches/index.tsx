@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, Platform, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GameCard } from "@/components/GameCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,7 +12,7 @@ export default function MatchesScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { currentUser } = useAuth();
-  const { games } = useData();
+  const { games, isLoading } = useData();
   const [tab, setTab] = useState(0);
 
   if (!currentUser) return null;
@@ -22,18 +22,15 @@ export default function MatchesScreen() {
   const upcoming = games.filter(
     (g) =>
       g.participants.includes(currentUser.id) &&
-      g.createdBy !== currentUser.id &&
       g.status === "active" &&
       new Date(g.date) >= now
   );
 
   const past = games.filter(
-    (g) =>
-      g.participants.includes(currentUser.id) &&
-      new Date(g.date) < now
+    (g) => g.participants.includes(currentUser.id) && new Date(g.date) < now
   );
 
-  const created = games.filter((g) => g.createdBy === currentUser.id);
+  const created = games.filter((g) => g.organizerId === currentUser.id);
 
   const lists = [upcoming, past, created];
   const emptyTitles = ["No upcoming games", "No past games", "No games created"];
@@ -42,13 +39,15 @@ export default function MatchesScreen() {
     "Your past games will appear here",
     "Create your first game from the Create tab",
   ];
-  const emptyIcons: Array<"calendar" | "clock" | "plus-circle"> = ["calendar", "clock", "plus-circle"];
-
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const emptyIcons: Array<"calendar" | "clock" | "plus-circle"> = [
+    "calendar",
+    "clock",
+    "plus-circle",
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: topPad + 16 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Matches</Text>
         <SegmentedControl
           options={[`Upcoming (${upcoming.length})`, `Past`, `Created (${created.length})`]}
@@ -57,20 +56,27 @@ export default function MatchesScreen() {
         />
       </View>
 
-      <FlatList
-        data={lists[tab]}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <GameCard game={item} />}
-        ListEmptyComponent={
-          <EmptyState
-            icon={emptyIcons[tab]}
-            title={emptyTitles[tab]}
-            subtitle={emptySubtitles[tab]}
-          />
-        }
-      />
+      {isLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#16A34A" />
+          <Text style={[styles.loadingText, { color: colors.mutedForeground }]}>Loading...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={lists[tab]}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => <GameCard game={item} />}
+          ListEmptyComponent={
+            <EmptyState
+              icon={emptyIcons[tab]}
+              title={emptyTitles[tab]}
+              subtitle={emptySubtitles[tab]}
+            />
+          }
+        />
+      )}
     </View>
   );
 }
@@ -85,7 +91,17 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontFamily: "Inter_700Bold" },
   list: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 110,
     paddingTop: 4,
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
   },
 });

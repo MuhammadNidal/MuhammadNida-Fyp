@@ -10,6 +10,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -36,14 +37,29 @@ function InfoRow({ icon, text }: { icon: keyof typeof Feather.glyphMap; text: st
   const colors = useColors();
   return (
     <View style={iStyles.infoRow}>
-      <Feather name={icon} size={16} color={colors.mutedForeground} />
-      <Text style={[iStyles.infoText, { color: colors.mutedForeground }]}>{text}</Text>
+      <View style={[iStyles.iconWrap, { backgroundColor: colors.muted }]}>
+        <Feather name={icon} size={15} color={colors.mutedForeground} />
+      </View>
+      <Text style={[iStyles.infoText, { color: colors.foreground }]}>{text}</Text>
     </View>
   );
 }
 
 const iStyles = StyleSheet.create({
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+  },
+  iconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   infoText: { fontSize: 14, fontFamily: "Inter_400Regular", flex: 1 },
 });
 
@@ -52,7 +68,8 @@ export default function GameDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currentUser } = useAuth();
-  const { getGameById, joinGame, leaveGame, sendGameMessage, getAllUsers, refreshGames } = useData();
+  const { getGameById, joinGame, leaveGame, sendGameMessage, getAllUsers, refreshGames } =
+    useData();
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [messageText, setMessageText] = useState("");
@@ -67,8 +84,17 @@ export default function GameDetailScreen() {
 
   if (!game) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
-        <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular" }}>Game not found</Text>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular" }}>
+          Game not found
+        </Text>
       </View>
     );
   }
@@ -79,6 +105,17 @@ export default function GameDetailScreen() {
   const host = allUsers.find((u) => u.id === game.organizerId);
   const participants = allUsers.filter((u) => game.participants.includes(u.id));
   const visibleMessages = game.messages.filter((m) => !m.isHidden);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        title: game.title,
+        message: `Join me for "${game.title}" — ${game.sport} at ${game.locationName}, ${game.city} on ${formatDate(game.date)}. Find it on Let's Play!`,
+      });
+    } catch {
+      // share dismissed
+    }
+  };
 
   const handleJoin = async () => {
     if (!currentUser) return;
@@ -137,15 +174,17 @@ export default function GameDetailScreen() {
     all: "All Ages",
   };
   const groupLabels: Record<string, string> = {
-    male: "Male",
-    female: "Female",
-    all: "All",
+    male: "Male only",
+    female: "Female only",
+    all: "All genders",
   };
+
+  const spotsLeft = game.maxPlayers - game.participants.length;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
+        <Pressable onPress={() => router.back()} style={styles.iconBtn}>
           <Feather name="arrow-left" size={22} color={colors.foreground} />
         </Pressable>
         <View style={styles.tabPills}>
@@ -169,22 +208,48 @@ export default function GameDetailScreen() {
             </Pressable>
           ))}
         </View>
+        <Pressable onPress={handleShare} style={styles.iconBtn}>
+          <Feather name="share-2" size={20} color={colors.foreground} />
+        </Pressable>
       </View>
 
       {activeTab === "details" ? (
-        <ScrollView contentContainerStyle={styles.detailContent} showsVerticalScrollIndicator={false}>
-          <SportBadge sport={game.sport} type={game.type} />
+        <ScrollView
+          contentContainerStyle={styles.detailContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.badgeRow}>
+            <SportBadge sport={game.sport} type={game.type} />
+            {game.type === "lesson" && (
+              <View style={[styles.typePill, { backgroundColor: "#8B5CF618" }]}>
+                <Feather name="award" size={12} color="#8B5CF6" />
+                <Text style={[styles.typePillText, { color: "#8B5CF6" }]}>Lesson</Text>
+              </View>
+            )}
+            {game.type === "pro_game" && (
+              <View style={[styles.typePill, { backgroundColor: "#F9731618" }]}>
+                <Feather name="star" size={12} color="#F97316" />
+                <Text style={[styles.typePillText, { color: "#F97316" }]}>Pro Game</Text>
+              </View>
+            )}
+          </View>
 
           <Text style={[styles.gameTitle, { color: colors.foreground }]}>{game.title}</Text>
 
-          {game.isPaid && (
-            <View style={[styles.priceBox, { backgroundColor: "#F0FDF4", borderColor: "#BBF7D0" }]}>
-              <Feather name="dollar-sign" size={16} color="#16A34A" />
-              <Text style={[styles.priceText, { color: "#16A34A" }]}>
-                ${game.price} to join
+          <View style={styles.spotsRow}>
+            <View style={[styles.spotsPill, { backgroundColor: spotsLeft > 0 ? "#F0FDF4" : "#FEF2F2" }]}>
+              <Feather name="users" size={13} color={spotsLeft > 0 ? "#16A34A" : "#DC2626"} />
+              <Text style={[styles.spotsText, { color: spotsLeft > 0 ? "#16A34A" : "#DC2626" }]}>
+                {spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left` : "Full"}
               </Text>
             </View>
-          )}
+            {game.isPaid && (
+              <View style={[styles.spotsPill, { backgroundColor: "#F0FDF4" }]}>
+                <Feather name="dollar-sign" size={13} color="#16A34A" />
+                <Text style={[styles.spotsText, { color: "#16A34A" }]}>${game.price} to join</Text>
+              </View>
+            )}
+          </View>
 
           <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <InfoRow icon="calendar" text={formatDate(game.date)} />
@@ -218,12 +283,22 @@ export default function GameDetailScreen() {
                 onPress={() => router.push(`/(tabs)/explore/players/${host.id}`)}
                 style={[styles.hostCard, { backgroundColor: colors.card, borderColor: colors.border }]}
               >
-                <Avatar name={host.name} avatarUrl={host.avatarUrl} role={host.role} size={44} />
+                <Avatar
+                  name={host.name}
+                  avatarUrl={host.avatarUrl}
+                  role={host.role}
+                  size={44}
+                />
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.hostName, { color: colors.foreground }]}>{host.name}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Text style={[styles.hostName, { color: colors.foreground }]}>{host.name}</Text>
+                    {host.verificationStatus === "verified" && (
+                      <Feather name="check-circle" size={13} color="#16A34A" />
+                    )}
+                  </View>
                   <Text style={[styles.hostSub, { color: colors.mutedForeground }]}>
-                    @{host.username} · {host.role}
-                    {host.verificationStatus === "verified" ? " · Verified" : ""}
+                    @{host.username} ·{" "}
+                    {host.role === "coach" ? "Coach" : host.role === "pro" ? "Pro" : "Player"}
                   </Text>
                 </View>
                 <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
@@ -235,17 +310,28 @@ export default function GameDetailScreen() {
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               Players ({game.participants.length}/{game.maxPlayers})
             </Text>
-            <View style={styles.participantsList}>
-              {participants.map((p) => (
-                <View key={p.id} style={styles.participantRow}>
-                  <Avatar name={p.name} avatarUrl={p.avatarUrl} role={p.role} size={36} />
-                  <Text style={[styles.participantName, { color: colors.foreground }]}>{p.name}</Text>
-                  {p.id === game.organizerId && (
-                    <View style={[styles.organizerBadge, { backgroundColor: "#16A34A18" }]}>
-                      <Text style={{ color: "#16A34A", fontSize: 11, fontFamily: "Inter_600SemiBold" }}>
-                        Organizer
-                      </Text>
-                    </View>
+            <View
+              style={[styles.participantsCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
+              {participants.map((p, idx) => (
+                <View key={p.id}>
+                  <Pressable
+                    onPress={() => router.push(`/(tabs)/explore/players/${p.id}`)}
+                    style={styles.participantRow}
+                  >
+                    <Avatar name={p.name} avatarUrl={p.avatarUrl} role={p.role} size={36} />
+                    <Text style={[styles.participantName, { color: colors.foreground }]}>{p.name}</Text>
+                    {p.id === game.organizerId && (
+                      <View style={[styles.organizerBadge, { backgroundColor: "#16A34A18" }]}>
+                        <Text style={{ color: "#16A34A", fontSize: 11, fontFamily: "Inter_600SemiBold" }}>
+                          Organizer
+                        </Text>
+                      </View>
+                    )}
+                    <Feather name="chevron-right" size={14} color={colors.mutedForeground} />
+                  </Pressable>
+                  {idx < participants.length - 1 && (
+                    <View style={[styles.divider, { backgroundColor: colors.border, marginLeft: 60 }]} />
                   )}
                 </View>
               ))}
@@ -281,8 +367,9 @@ export default function GameDetailScreen() {
                 }}
                 ListEmptyComponent={
                   <View style={styles.emptyMessages}>
+                    <Feather name="message-circle" size={32} color={colors.border} />
                     <Text style={[styles.emptyMessagesText, { color: colors.mutedForeground }]}>
-                      No messages yet. Start the conversation!
+                      No messages yet. Be the first to say something!
                     </Text>
                   </View>
                 }
@@ -300,7 +387,11 @@ export default function GameDetailScreen() {
                 <TextInput
                   style={[
                     styles.msgTextInput,
-                    { backgroundColor: colors.muted, color: colors.foreground, borderColor: colors.border },
+                    {
+                      backgroundColor: colors.muted,
+                      color: colors.foreground,
+                      borderColor: colors.border,
+                    },
                   ]}
                   placeholder="Message the group..."
                   placeholderTextColor={colors.mutedForeground}
@@ -316,15 +407,24 @@ export default function GameDetailScreen() {
                     { backgroundColor: messageText.trim() ? "#16A34A" : colors.muted },
                   ]}
                 >
-                  <Feather name="send" size={18} color={messageText.trim() ? "#fff" : colors.mutedForeground} />
+                  <Feather
+                    name="send"
+                    size={18}
+                    color={messageText.trim() ? "#fff" : colors.mutedForeground}
+                  />
                 </Pressable>
               </View>
             </>
           ) : (
             <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 32 }}>
-              <Feather name="lock" size={28} color={colors.mutedForeground} />
+              <View style={[styles.lockCircle, { backgroundColor: colors.muted }]}>
+                <Feather name="lock" size={28} color={colors.mutedForeground} />
+              </View>
+              <Text style={[styles.lockedTitle, { color: colors.foreground }]}>
+                Join to see messages
+              </Text>
               <Text style={[styles.lockedText, { color: colors.mutedForeground }]}>
-                Join the game to see and send messages
+                Game messages are only visible to participants. Join the game to read and post messages.
               </Text>
             </View>
           )}
@@ -344,7 +444,10 @@ export default function GameDetailScreen() {
         {isParticipant ? (
           <Pressable
             onPress={handleLeave}
-            style={[styles.actionBtn, { backgroundColor: "#FEF2F2", borderColor: "#FECACA", borderWidth: 1 }]}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: "#FEF2F2", borderColor: "#FECACA", borderWidth: 1 },
+            ]}
           >
             <Text style={[styles.actionBtnText, { color: "#DC2626" }]}>Leave Game</Text>
           </Pressable>
@@ -363,7 +466,12 @@ export default function GameDetailScreen() {
             {joining ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={[styles.actionBtnText, { color: isFull ? colors.mutedForeground : "#fff" }]}>
+              <Text
+                style={[
+                  styles.actionBtnText,
+                  { color: isFull ? colors.mutedForeground : "#fff" },
+                ]}
+              >
                 {isFull ? "Game Full" : game.isPaid ? `Join · $${game.price}` : "Join Game"}
               </Text>
             )}
@@ -379,19 +487,20 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingBottom: 12,
-    gap: 12,
+    gap: 8,
   },
-  backBtn: {
-    width: 38,
-    height: 38,
+  iconBtn: {
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
   },
   tabPills: {
     flexDirection: "row",
     gap: 6,
+    flex: 1,
   },
   tabPill: {
     paddingHorizontal: 14,
@@ -407,22 +516,44 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     gap: 16,
   },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  typePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  typePillText: {
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+  },
   gameTitle: {
     fontSize: 24,
     fontFamily: "Inter_700Bold",
     lineHeight: 30,
   },
-  priceBox: {
+  spotsRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  spotsPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
   },
-  priceText: {
-    fontSize: 16,
+  spotsText: {
+    fontSize: 13,
     fontFamily: "Inter_600SemiBold",
   },
   infoCard: {
@@ -430,7 +561,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
   },
-  divider: { height: StyleSheet.hairlineWidth, marginLeft: 42 },
+  divider: { height: StyleSheet.hairlineWidth },
   section: { gap: 12 },
   sectionTitle: {
     fontSize: 17,
@@ -458,11 +589,17 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     marginTop: 2,
   },
-  participantsList: { gap: 10 },
+  participantsCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
   participantRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   participantName: {
     fontSize: 14,
@@ -483,12 +620,14 @@ const styles = StyleSheet.create({
   emptyMessages: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 32,
+    padding: 40,
+    gap: 12,
   },
   emptyMessagesText: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",
     textAlign: "center",
+    lineHeight: 20,
   },
   messageInput: {
     flexDirection: "row",
@@ -516,11 +655,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  lockCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  lockedTitle: {
+    fontSize: 18,
+    fontFamily: "Inter_600SemiBold",
+    marginBottom: 8,
+  },
   lockedText: {
     fontSize: 15,
     fontFamily: "Inter_400Regular",
     textAlign: "center",
-    marginTop: 12,
+    lineHeight: 22,
   },
   bottomBar: {
     paddingHorizontal: 20,

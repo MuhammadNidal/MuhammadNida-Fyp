@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,12 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useColors } from "@/hooks/useColors";
-import {
-  SPORTS,
-  SKILL_LEVELS,
-  AGE_GROUPS,
-  PARTICIPATION_GROUPS,
-} from "@/constants/sports";
+import { SPORTS, SKILL_LEVELS, AGE_GROUPS, PARTICIPATION_GROUPS } from "@/constants/sports";
 
 function SelectRow<T extends string>({
   label,
@@ -43,7 +37,10 @@ function SelectRow<T extends string>({
           {options.map((opt) => (
             <Pressable
               key={opt.id}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onChange(opt.id); }}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                onChange(opt.id);
+              }}
               style={[
                 styles.chip,
                 {
@@ -53,7 +50,12 @@ function SelectRow<T extends string>({
                 },
               ]}
             >
-              <Text style={[styles.chipText, { color: value === opt.id ? "#16A34A" : colors.mutedForeground }]}>
+              <Text
+                style={[
+                  styles.chipText,
+                  { color: value === opt.id ? "#16A34A" : colors.mutedForeground },
+                ]}
+              >
                 {opt.label}
               </Text>
             </Pressable>
@@ -70,12 +72,14 @@ function FieldInput({
   onChange,
   placeholder,
   multiline,
+  keyboardType,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
   multiline?: boolean;
+  keyboardType?: "default" | "decimal-pad" | "number-pad";
 }) {
   const colors = useColors();
   return (
@@ -90,6 +94,7 @@ function FieldInput({
             backgroundColor: colors.muted,
             height: multiline ? 90 : 48,
             textAlignVertical: multiline ? "top" : "center",
+            paddingTop: multiline ? 12 : 0,
           },
         ]}
         placeholder={placeholder}
@@ -97,6 +102,7 @@ function FieldInput({
         value={value}
         onChangeText={onChange}
         multiline={multiline}
+        keyboardType={keyboardType ?? "default"}
       />
     </View>
   );
@@ -120,9 +126,12 @@ export default function CreateScreen() {
   const [locationName, setLocationName] = useState("");
   const [city, setCity] = useState("");
   const [maxPlayers, setMaxPlayers] = useState("10");
-  const [skillLevel, setSkillLevel] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
-  const [ageGroup, setAgeGroup] = useState<"young_adult" | "adult" | "senior" | "all">("all");
-  const [participationGroup, setParticipationGroup] = useState<"male" | "female" | "all">("all");
+  const [skillLevel, setSkillLevel] =
+    useState<"beginner" | "intermediate" | "advanced" | "all">("all");
+  const [ageGroup, setAgeGroup] =
+    useState<"young_adult" | "adult" | "senior" | "all">("all");
+  const [participationGroup, setParticipationGroup] =
+    useState<"male" | "female" | "all">("all");
   const [isPaid, setIsPaid] = useState(false);
   const [price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
@@ -131,17 +140,21 @@ export default function CreateScreen() {
   const canCreateLesson = currentUser?.role === "coach" || currentUser?.role === "pro";
   const canCreateProGame = currentUser?.role === "pro";
 
-  const availableTypes: { id: GameType; label: string; desc: string }[] = [
-    { id: "game", label: "Game", desc: "Standard pickup game for all players" },
-    ...(canCreateLesson ? [{ id: "lesson" as GameType, label: "Lesson", desc: "Structured lesson you host as a coach/pro" }] : []),
-    ...(canCreateProGame ? [{ id: "pro_game" as GameType, label: "Pro Game", desc: "Play with a pro experience" }] : []),
+  const availableTypes: { id: GameType; label: string; desc: string; icon: keyof typeof Feather.glyphMap }[] = [
+    { id: "game", label: "Game", desc: "Standard pickup game open to all players", icon: "activity" },
+    ...(canCreateLesson
+      ? [{ id: "lesson" as GameType, label: "Lesson", desc: "Structured lesson you host as a coach or pro", icon: "award" as const }]
+      : []),
+    ...(canCreateProGame
+      ? [{ id: "pro_game" as GameType, label: "Pro Game", desc: "Play with a pro — exclusive experience", icon: "star" as const }]
+      : []),
   ];
 
   const handleCreate = async () => {
     if (!currentUser) return;
     if (!title.trim()) { setError("Title is required"); return; }
-    if (!locationName.trim()) { setError("Location is required"); return; }
-    if (!city.trim()) { setError("City is required"); return; }
+    if (!locationName.trim()) { setError("Location name is required"); return; }
+    if (!city.trim()) { setError("City / neighborhood is required"); return; }
     setError("");
     setLoading(true);
     try {
@@ -151,7 +164,7 @@ export default function CreateScreen() {
         sport,
         title: title.trim(),
         description: description.trim(),
-        date: new Date().toISOString(),
+        date: date ? new Date(date).toISOString() : new Date().toISOString(),
         startTime: startTime || "TBD",
         endTime: endTime || "TBD",
         locationName: locationName.trim(),
@@ -161,7 +174,7 @@ export default function CreateScreen() {
         skillLevel,
         maxPlayers: parseInt(maxPlayers) || 10,
         type: gameType,
-        isPaid: gameType !== "game" && isPaid,
+        isPaid: isPaid && gameType !== "game",
         price: isPaid && price ? parseFloat(price) : undefined,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -173,17 +186,22 @@ export default function CreateScreen() {
     }
   };
 
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: topPad + 16 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Create</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+          {gameType === "game"
+            ? "Set up a pickup game"
+            : gameType === "lesson"
+            ? "Host a lesson"
+            : "Host a pro experience"}
+        </Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 110 }]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.field}>
@@ -191,7 +209,10 @@ export default function CreateScreen() {
           {availableTypes.map((t) => (
             <Pressable
               key={t.id}
-              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setGameType(t.id); }}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setGameType(t.id);
+              }}
               style={[
                 styles.typeCard,
                 {
@@ -201,15 +222,32 @@ export default function CreateScreen() {
                 },
               ]}
             >
-              <View style={styles.typeCardRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.typeCardTitle, { color: gameType === t.id ? "#16A34A" : colors.foreground }]}>
-                    {t.label}
-                  </Text>
-                  <Text style={[styles.typeCardDesc, { color: colors.mutedForeground }]}>{t.desc}</Text>
-                </View>
-                {gameType === t.id && <Feather name="check-circle" size={20} color="#16A34A" />}
+              <View
+                style={[
+                  styles.typeIcon,
+                  { backgroundColor: gameType === t.id ? "#16A34A" : colors.border },
+                ]}
+              >
+                <Feather
+                  name={t.icon}
+                  size={16}
+                  color={gameType === t.id ? "#fff" : colors.mutedForeground}
+                />
               </View>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.typeCardTitle,
+                    { color: gameType === t.id ? "#16A34A" : colors.foreground },
+                  ]}
+                >
+                  {t.label}
+                </Text>
+                <Text style={[styles.typeCardDesc, { color: colors.mutedForeground }]}>
+                  {t.desc}
+                </Text>
+              </View>
+              {gameType === t.id && <Feather name="check-circle" size={20} color="#16A34A" />}
             </Pressable>
           ))}
         </View>
@@ -221,7 +259,10 @@ export default function CreateScreen() {
               {SPORTS.map((s) => (
                 <Pressable
                   key={s.id}
-                  onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setSport(s.id); }}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setSport(s.id);
+                  }}
                   style={[
                     styles.chip,
                     {
@@ -231,7 +272,12 @@ export default function CreateScreen() {
                     },
                   ]}
                 >
-                  <Text style={[styles.chipText, { color: sport === s.id ? s.color : colors.mutedForeground }]}>
+                  <Text
+                    style={[
+                      styles.chipText,
+                      { color: sport === s.id ? s.color : colors.mutedForeground },
+                    ]}
+                  >
                     {s.name}
                   </Text>
                 </Pressable>
@@ -240,25 +286,85 @@ export default function CreateScreen() {
           </ScrollView>
         </View>
 
-        <FieldInput label="Title" value={title} onChange={setTitle} placeholder="e.g. Friday Night Hoops" />
-        <FieldInput label="Description" value={description} onChange={setDescription} placeholder="Tell players what to expect..." multiline />
-        <FieldInput label="Date" value={date} onChange={setDate} placeholder="e.g. Dec 20, 2025" />
-        <FieldInput label="Start Time" value={startTime} onChange={setStartTime} placeholder="e.g. 7:00 PM" />
-        <FieldInput label="End Time" value={endTime} onChange={setEndTime} placeholder="e.g. 9:00 PM" />
-        <FieldInput label="Venue / Location" value={locationName} onChange={setLocationName} placeholder="e.g. Chelsea Recreation Center" />
-        <FieldInput label="City / Neighborhood" value={city} onChange={setCity} placeholder="e.g. Chelsea, Manhattan" />
-        <FieldInput label="Max Players" value={maxPlayers} onChange={setMaxPlayers} placeholder="e.g. 10" />
+        <FieldInput
+          label="Title"
+          value={title}
+          onChange={setTitle}
+          placeholder="e.g. Friday Night Hoops"
+        />
+        <FieldInput
+          label="Description"
+          value={description}
+          onChange={setDescription}
+          placeholder="Tell players what to expect..."
+          multiline
+        />
+        <FieldInput
+          label="Date"
+          value={date}
+          onChange={setDate}
+          placeholder="e.g. 2025-12-20"
+        />
+        <FieldInput
+          label="Start Time"
+          value={startTime}
+          onChange={setStartTime}
+          placeholder="e.g. 7:00 PM"
+        />
+        <FieldInput
+          label="End Time"
+          value={endTime}
+          onChange={setEndTime}
+          placeholder="e.g. 9:00 PM"
+        />
+        <FieldInput
+          label="Venue / Location"
+          value={locationName}
+          onChange={setLocationName}
+          placeholder="e.g. Chelsea Recreation Center"
+        />
+        <FieldInput
+          label="City / Neighborhood"
+          value={city}
+          onChange={setCity}
+          placeholder="e.g. Chelsea, Manhattan"
+        />
+        <FieldInput
+          label="Max Players"
+          value={maxPlayers}
+          onChange={setMaxPlayers}
+          placeholder="e.g. 10"
+          keyboardType="number-pad"
+        />
 
-        <SelectRow label="Skill Level" options={SKILL_LEVELS as any} value={skillLevel} onChange={setSkillLevel as any} />
-        <SelectRow label="Age Group" options={AGE_GROUPS as any} value={ageGroup} onChange={setAgeGroup as any} />
-        <SelectRow label="Participation Group" options={PARTICIPATION_GROUPS as any} value={participationGroup} onChange={setParticipationGroup as any} />
+        <SelectRow
+          label="Skill Level"
+          options={SKILL_LEVELS as any}
+          value={skillLevel}
+          onChange={setSkillLevel as any}
+        />
+        <SelectRow
+          label="Age Group"
+          options={AGE_GROUPS as any}
+          value={ageGroup}
+          onChange={setAgeGroup as any}
+        />
+        <SelectRow
+          label="Participation Group"
+          options={PARTICIPATION_GROUPS as any}
+          value={participationGroup}
+          onChange={setParticipationGroup as any}
+        />
 
         {(gameType === "lesson" || gameType === "pro_game") && (
           <View style={styles.field}>
             <Text style={[styles.label, { color: colors.foreground }]}>Pricing</Text>
             <View style={styles.paidRow}>
               <Pressable
-                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setIsPaid(false); }}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setIsPaid(false);
+                }}
                 style={[
                   styles.paidOption,
                   {
@@ -268,10 +374,21 @@ export default function CreateScreen() {
                   },
                 ]}
               >
-                <Text style={{ color: !isPaid ? "#16A34A" : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }}>Free</Text>
+                <Feather name="gift" size={14} color={!isPaid ? "#16A34A" : colors.mutedForeground} />
+                <Text
+                  style={[
+                    styles.paidOptionText,
+                    { color: !isPaid ? "#16A34A" : colors.mutedForeground },
+                  ]}
+                >
+                  Free
+                </Text>
               </Pressable>
               <Pressable
-                onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setIsPaid(true); }}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setIsPaid(true);
+                }}
                 style={[
                   styles.paidOption,
                   {
@@ -281,12 +398,29 @@ export default function CreateScreen() {
                   },
                 ]}
               >
-                <Text style={{ color: isPaid ? "#16A34A" : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }}>Paid</Text>
+                <Feather name="dollar-sign" size={14} color={isPaid ? "#16A34A" : colors.mutedForeground} />
+                <Text
+                  style={[
+                    styles.paidOptionText,
+                    { color: isPaid ? "#16A34A" : colors.mutedForeground },
+                  ]}
+                >
+                  Paid
+                </Text>
               </Pressable>
             </View>
             {isPaid && (
               <TextInput
-                style={[styles.input, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.muted, height: 48, marginTop: 8 }]}
+                style={[
+                  styles.input,
+                  {
+                    color: colors.foreground,
+                    borderColor: colors.border,
+                    backgroundColor: colors.muted,
+                    height: 48,
+                    marginTop: 10,
+                  },
+                ]}
                 placeholder="Price in USD (e.g. 25)"
                 placeholderTextColor={colors.mutedForeground}
                 value={price}
@@ -298,9 +432,13 @@ export default function CreateScreen() {
         )}
 
         {error ? (
-          <View style={[styles.errorBox, { backgroundColor: "#FEF2F2", borderColor: "#FECACA" }]}>
+          <View
+            style={[styles.errorBox, { backgroundColor: "#FEF2F2", borderColor: "#FECACA" }]}
+          >
             <Feather name="alert-circle" size={14} color="#DC2626" />
-            <Text style={{ color: "#DC2626", fontSize: 13, fontFamily: "Inter_400Regular" }}>{error}</Text>
+            <Text style={{ color: "#DC2626", fontSize: 13, fontFamily: "Inter_400Regular", flex: 1 }}>
+              {error}
+            </Text>
           </View>
         ) : null}
 
@@ -315,7 +453,10 @@ export default function CreateScreen() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.createBtnText}>Publish {gameType === "game" ? "Game" : gameType === "lesson" ? "Lesson" : "Pro Game"}</Text>
+            <Text style={styles.createBtnText}>
+              Publish{" "}
+              {gameType === "game" ? "Game" : gameType === "lesson" ? "Lesson" : "Pro Game"}
+            </Text>
           )}
         </Pressable>
       </ScrollView>
@@ -325,8 +466,9 @@ export default function CreateScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 12 },
+  header: { paddingHorizontal: 20, paddingBottom: 8, gap: 2 },
   title: { fontSize: 28, fontFamily: "Inter_700Bold" },
+  subtitle: { fontSize: 14, fontFamily: "Inter_400Regular" },
   content: { paddingHorizontal: 20, gap: 4 },
   field: { marginBottom: 16 },
   label: { fontSize: 14, fontFamily: "Inter_500Medium", marginBottom: 8 },
@@ -337,15 +479,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Inter_400Regular",
   },
-  chipRow: { flexDirection: "row", gap: 8 },
+  chipRow: { flexDirection: "row", gap: 8, paddingBottom: 2 },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
   chipText: { fontSize: 13, fontFamily: "Inter_500Medium" },
-  typeCard: { borderRadius: 14, padding: 14, marginBottom: 8 },
-  typeCardRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  typeCard: {
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  typeIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   typeCardTitle: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
   typeCardDesc: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
   paidRow: { flexDirection: "row", gap: 10 },
-  paidOption: { flex: 1, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  paidOption: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 6,
+  },
+  paidOptionText: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
   errorBox: {
     flexDirection: "row",
     gap: 8,

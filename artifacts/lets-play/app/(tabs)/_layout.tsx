@@ -3,7 +3,6 @@ import { Tabs } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
-
 import { useColors } from "@/hooks/useColors";
 
 export default function TabLayout() {
@@ -14,7 +13,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: "#16A34A",
         tabBarInactiveTintColor: colors.mutedForeground,
         headerShown: false,
         tabBarStyle: {
@@ -23,8 +22,13 @@ export default function TabLayout() {
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
           elevation: 0,
-          height: isWeb ? 72 : undefined,
-          paddingBottom: isWeb ? 12 : undefined,
+          height: isWeb ? 60 : undefined,
+          paddingBottom: isWeb ? 8 : undefined,
+          paddingTop: isWeb ? 4 : undefined,
+          bottom: isWeb ? 10 : 0,
+          left: 0,
+          right: 0,
+          borderRadius: isWeb ? 0 : 0,
         },
         tabBarBackground: () =>
           isIOS ? (
@@ -39,16 +43,12 @@ export default function TabLayout() {
             />
           ),
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontFamily: "Inter_500Medium",
-          marginTop: -2,
         },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{ href: null }}
-      />
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
         name="explore"
         options={{

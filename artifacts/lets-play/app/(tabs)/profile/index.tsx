@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { SportBadge } from "@/components/SportBadge";
@@ -15,7 +15,7 @@ export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { currentUser } = useAuth();
-  const { games } = useData();
+  const { games, isLoading } = useData();
 
   if (!currentUser) return null;
 
@@ -23,29 +23,23 @@ export default function ProfileScreen() {
     .filter((g) => g.participants.includes(currentUser.id) && g.status === "active")
     .slice(0, 3);
 
-  const roleBadge = currentUser.role === "pro" ? "Pro" : currentUser.role === "coach" ? "Coach" : null;
+  const roleBadge =
+    currentUser.role === "pro" ? "Pro" : currentUser.role === "coach" ? "Coach" : null;
   const roleBadgeColor = currentUser.role === "pro" ? "#F97316" : "#8B5CF6";
-
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.topBar, { paddingTop: topPad + 8 }]}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Profile</Text>
-        <View style={styles.topActions}>
-          <Pressable
-            onPress={() => router.push("/(tabs)/profile/settings")}
-            style={styles.iconBtn}
-          >
-            <Feather name="settings" size={22} color={colors.foreground} />
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={() => router.push("/(tabs)/profile/settings")}
+          style={styles.iconBtn}
+        >
+          <Feather name="settings" size={22} color={colors.foreground} />
+        </Pressable>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         <View style={styles.profileHeader}>
           <Avatar
             name={currentUser.name}
@@ -91,7 +85,7 @@ export default function ProfileScreen() {
         </View>
 
         {currentUser.bio ? (
-          <View style={styles.section}>
+          <View style={[styles.section, { marginTop: 4 }]}>
             <Text style={[styles.bio, { color: colors.mutedForeground }]}>{currentUser.bio}</Text>
           </View>
         ) : null}
@@ -121,7 +115,9 @@ export default function ProfileScreen() {
             style={[styles.verifyBanner, { backgroundColor: "#F0FDF4", borderColor: "#BBF7D0" }]}
           >
             <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <Feather name="shield" size={18} color="#16A34A" />
+              <View style={[styles.verifyIcon, { backgroundColor: "#DCFCE7" }]}>
+                <Feather name="shield" size={18} color="#16A34A" />
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.verifyTitle, { color: "#15803D" }]}>Get Verified</Text>
                 <Text style={[styles.verifySubtitle, { color: "#16A34A" }]}>
@@ -134,11 +130,17 @@ export default function ProfileScreen() {
         )}
 
         {currentUser.verificationStatus === "pending" && (
-          <View style={[styles.verifyBanner, { backgroundColor: "#FFFBEB", borderColor: "#FDE68A" }]}>
+          <View
+            style={[styles.verifyBanner, { backgroundColor: "#FFFBEB", borderColor: "#FDE68A" }]}
+          >
             <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <Feather name="clock" size={18} color="#D97706" />
+              <View style={[styles.verifyIcon, { backgroundColor: "#FEF3C7" }]}>
+                <Feather name="clock" size={18} color="#D97706" />
+              </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.verifyTitle, { color: "#92400E" }]}>Verification Pending</Text>
+                <Text style={[styles.verifyTitle, { color: "#92400E" }]}>
+                  Verification Pending
+                </Text>
                 <Text style={[styles.verifySubtitle, { color: "#D97706" }]}>
                   Your application is under review
                 </Text>
@@ -147,10 +149,36 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {currentUser.verificationStatus === "verified" && (
+          <View
+            style={[styles.verifyBanner, { backgroundColor: "#F0FDF4", borderColor: "#BBF7D0" }]}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <View style={[styles.verifyIcon, { backgroundColor: "#DCFCE7" }]}>
+                <Feather name="check-circle" size={18} color="#16A34A" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.verifyTitle, { color: "#15803D" }]}>Verified Account</Text>
+                <Text style={[styles.verifySubtitle, { color: "#16A34A" }]}>
+                  Your profile shows a verification badge
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Active Games</Text>
-          {myGames.length === 0 ? (
-            <EmptyState icon="calendar" title="No active games" subtitle="Join or create a game to get started" />
+          {isLoading ? (
+            <View style={{ padding: 24, alignItems: "center" }}>
+              <ActivityIndicator color="#16A34A" />
+            </View>
+          ) : myGames.length === 0 ? (
+            <EmptyState
+              icon="calendar"
+              title="No active games"
+              subtitle="Join or create a game to get started"
+            />
           ) : (
             myGames.map((g) => <GameCard key={g.id} game={g} />)
           )}
@@ -170,7 +198,6 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   title: { fontSize: 28, fontFamily: "Inter_700Bold" },
-  topActions: { flexDirection: "row", gap: 4 },
   iconBtn: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   profileHeader: {
     flexDirection: "row",
@@ -185,7 +212,13 @@ const styles = StyleSheet.create({
   username: { fontSize: 14, fontFamily: "Inter_400Regular" },
   locationRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   location: { fontSize: 13, fontFamily: "Inter_400Regular" },
-  rolePill: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, alignSelf: "flex-start", marginTop: 4 },
+  rolePill: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+    alignSelf: "flex-start",
+    marginTop: 4,
+  },
   roleText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   statsBar: {
     flexDirection: "row",
@@ -220,6 +253,13 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     padding: 14,
+  },
+  verifyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
   verifyTitle: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
   verifySubtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
