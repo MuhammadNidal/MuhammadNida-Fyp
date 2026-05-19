@@ -1,5 +1,3 @@
-import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
 import React, { useState } from "react";
 import { FlatList, Platform, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
