@@ -1,0 +1,506 @@
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+18
+
+Let’s Play — Client Questionnaire Responses
+Section 1 — Direct Scope Conflicts
+1A — Game Departure & Cancellation
+1A.1 What should happen when a player leaves a free game they have
+already joined? Should their spot become available immediately, or
+should the host be notified first?
+Answer:
+For a standard free game, when a non-organizer player leaves, their spot should
+become available immediately.
+The organizer should receive a notification, but the organizer does not need to
+approve the departure.
+MVP behavior:
+ Player taps Leave Game.
+ Player is removed from the participant list.
+ The available spot count increases immediately.
+ The current organizer receives a notification.
+ The game remains active and discoverable if it still has open spots and
+meets discovery criteria.
+Important exception:
+If the player leaving is the current organizer and other players have joined, they
+cannot fully leave until organizer responsibility is transferred to another joined
+player.
+1A.2 The scope states that game creators cannot cancel or delete a
+game. Is this still the intended behavior at MVP? If so, how does a
+creator close a game that is no longer happening?
+Answer:
+For standard player-created games, the intended behavior is that the game
+cannot be canceled or deleted once other players have joined.
+A standard game should not collapse just because the original creator can no
+longer attend. If players have already made plans to meet and play, the game
+should continue for the group.
+However, to prevent orphaned games, every active standard game must always
+have one organizer.
+MVP behavior for standard games:
+ The original creator is the initial organizer.
+ If no other players have joined, the creator/organizer can cancel, close, or
+delete the game.
+ Once one or more players have joined, the game cannot be deleted.
+ Once one or more players have joined, the game cannot be canceled simply
+because the organizer can no longer attend.
+ If the organizer wants to leave, they must transfer organizer responsibility
+to another joined player first.
+ The new organizer receives game-management permissions.
+ Joined players are notified when organizer responsibility changes.
+ The game remains active for all joined participants.
+ The game remains discoverable if it still has open spots and meets
+discovery criteria.
+Cancellation exception:
+Coach lessons and pro games are host-dependent. Since the coach/pro is central
+to the value of the event, those event types can be canceled by the host.
+MVP behavior for coach lessons and pro games:
+ A coach can cancel a lesson they created.
+ A pro can cancel a pro game they created.
+ Canceled lessons and pro games remain in the system as canceled records,
+not deleted records.
+ Joined participants are notified when a lesson or pro game is canceled.
+ Canceled lessons and pro games no longer accept new participants.
+ Refund/payment behavior must follow the payment and refund policy
+defined for paid activities.
+1A.3 Should joined players receive a notification or alert when a game
+they signed up for has no active host activity for a defined period of
+time?
+Answer:
+Not for MVP.
+For standard games, the platform should not treat the original creator as a
+required host. The current organizer is responsible for basic game management,
+but the game itself is community-driven.
+MVP behavior:
+ No automated inactive-host alerts.
+ Players rely on game details, organizer updates, and game messages.
+ If the organizer can no longer attend, organizer responsibility must
+transfer before they can leave.
+Post-MVP consideration:
+The platform may later add host confirmation prompts, automated reminders, or
+game health indicators.
+1B — Game Messages & Moderation
+1B.1 Game messages are included in the MVP. Who is responsible for
+moderating content posted in a game message thread — the game
+creator, a designated moderator, or the platform team?
+Answer:
+For MVP, moderation should be a shared responsibility between the current
+game organizer and the platform team.
+The organizer should have lightweight controls for the game thread. The
+platform team should have final authority to review reports and take
+enforcement action.
+MVP behavior:
+ The current organizer can report problematic messages.
+ The current organizer may have limited ability to hide messages in their
+own game thread.
+ Users can report specific messages.
+ Platform admins review reports and take enforcement action.
+ Separate moderator promotion is post-MVP.
+Rationale:
+Organizer transfer is part of MVP to avoid orphaned games. Moderator
+promotion beyond organizer transfer is post-MVP.
+1B.2 Can a game creator remove or hide an individual message posted
+by a participant in their game?
+Answer:
+For MVP, the current organizer should be able to hide an individual message, not
+hard delete it.
+MVP behavior:
+ Current organizer can hide a message from the visible game thread.
+ Hidden messages remain stored for audit/review purposes.
+ Hidden messages can be reviewed by platform admins.
+ The original message author may see a generic state such as “This message
+was removed.”
+Rationale:
+Hiding gives the organizer basic safety control while preserving data for review.
+1B.3 Should users be able to report a specific game message? If so,
+what action should the platform take and within what timeframe?
+Answer:
+Yes. Users should be able to report a specific game message at MVP.
+MVP behavior:
+ User can report an individual game message.
+ Report reasons should be simple at MVP:
+o Harassment or abuse
+o Hate or discriminatory content
+o Spam or scam
+o Threats or safety concern
+o Other
+ Reported messages are flagged for platform review.
+ Platform admins review reports manually.
+Response timeframe:
+Do not promise a strict public SLA at MVP unless the operations team is staffed to
+support it. Internally, urgent safety reports should be prioritized.
+1B.4 Are there any prohibited content categories that must be
+enforced at MVP? If so, is this enforced manually, automatically, or
+both?
+Answer:
+Yes. MVP should include basic prohibited content categories and manual
+enforcement.
+MVP prohibited content categories:
+ Harassment or bullying
+ Hate speech or discriminatory content
+ Threats or encouragement of violence
+ Spam, scams, or fraudulent activity
+ Sexual or explicit content
+ Illegal activity
+ Doxxing or sharing someone else’s private personal information
+ Impersonation
+ Content that creates a safety risk for users
+MVP enforcement:
+ Manual enforcement by platform admins.
+ User reporting for messages and users.
+ Organizer-level message hiding for game threads.
+Automatic moderation can be considered post-MVP.
+1C — Coach & Pro Roles at MVP
+1C.1 Should coach and pro roles be available at all during the MVP
+phase, given that the verification process required to grant those roles
+is not yet built?
+Answer:
+Yes. Coach and pro roles should be part of MVP.
+Coach/pro roles, lessons, pro games, verification, payments, and subscriptions are
+part of the MVP business model and should be included in the launch scope.
+However, users should not be able to self-declare as coaches or pros without
+review.
+MVP behavior:
+ All users begin as players.
+ Users can apply for coach status.
+ Users can apply for pro status.
+ Platform admins manually review coach/pro applications.
+ Approved coaches can create lessons.
+ Approved pros can create lessons and pro games.
+ Coach/pro status requires an active subscription unless comped by an
+admin where applicable.
+ Users without coach/pro privileges cannot create lessons or pro games.
+1C.2 If coach/pro roles are deferred to post-MVP, how will the
+platform handle users who apply for those roles during the MVP
+period — will applications be queued, rejected, or held?
+Answer:
+Not applicable. Coach and pro roles are not deferred; they are part of MVP.
+MVP behavior:
+ Users can apply for coach or pro status during MVP.
+ Applications are submitted for manual platform/admin review.
+ Applications can be approved, rejected, or returned for more information.
+ Approved users receive the appropriate role and creation privileges.
+ Subscription status must be active before coach/pro privileges are
+available, unless the role is comped by an admin where applicable.
+1C.3 If a lighter review process is acceptable for MVP coach
+verification, what is the minimum acceptable evidence required to
+grant coach status?
+Answer:
+A lighter coach review process is acceptable for MVP, but it should still require
+manual approval.
+Minimum coach verification evidence for MVP:
+ Sport or game the user wants to coach.
+ Short coaching experience summary.
+ Relevant certification, league affiliation, organization affiliation, or
+coaching history, if available.
+ Link to a public profile, website, social profile, league page, or other
+supporting evidence, if available.
+ Optional admin notes from the review process.
+The platform should allow admins to approve coach status based on reasonable
+evidence, even if the user does not have formal certification.
+Pro verification should require stronger evidence, such as professional
+playing history, team affiliation, tournament record, ranking, public profile,
+press, or other proof of professional-level experience.
+Section 2 — Missing Scope Decisions
+2A — Game Sharing
+2A.1 Is game sharing intended to be part of the MVP, or should it be
+formally moved to the post-MVP backlog?
+Answer:
+Game sharing should be part of MVP, with limited scope.
+MVP sharing scope:
+ External sharing through the native mobile share sheet.
+ Share content should include a game title, date/time, location summary,
+and link or app-specific reference.
+Post-MVP sharing scope:
+ Rich in-app sharing to specific users or groups.
+ Share tracking.
+ Invite flows.
+ Public web preview pages, if needed.
+2A.2 For MVP, is in-app sharing sufficient, or is external sharing via
+the native mobile share sheet also required at launch?
+Answer:
+External sharing via the native mobile share sheet is required at launch.
+In-app sharing to other Let’s Play users can be post-MVP unless it is simple to
+support using the existing user/profile system.
+MVP behavior:
+ User taps Share from a game detail page.
+ Native share sheet opens.
+ User can share through installed apps such as text, email, Instagram,
+Facebook, TikTok, and other available apps.
+Rationale:
+External sharing is likely more valuable at launch because the network will be
+small. Users need to invite people outside the platform.
+2A.3 Should game share links be publicly accessible, viewable without
+a Let’s Play account, or only accessible to existing app users?
+Answer:
+For MVP, shared links should route users into the app experience when possible
+and encourage account creation/login if the recipient is not already a user.
+Public web game detail pages are not required for MVP.
+MVP behavior:
+ Share link opens the app if installed.
+ If the app is not installed, the link routes to an app download or landing
+experience.
+ Full game participation requires a Let’s Play account.
+Post-MVP consideration:
+Public web preview pages may be added later to improve conversion from
+external sharing.
+2B — Game Moderation & Moderator Roles
+2B.1 Is the moderator promotion feature intended for the MVP phase,
+post-MVP, or is it being reconsidered?
+Answer:
+Moderator promotion should be post-MVP.
+For MVP, the game should have a single current organizer. Organizer transfer is
+part of MVP, but broader moderator promotion is not.
+MVP behavior:
+ Every active standard game must have one organizer.
+ The organizer can transfer organizer responsibility to another joined
+player.
+ There are no additional moderator roles beyond the current organizer.
+Post-MVP behavior:
+ A game may support multiple moderators.
+ Moderators may be granted specific permissions by the organizer.
+2B.2 What specific permissions should a moderator have? For
+example: can they edit game details, remove participants, delete
+messages, or cancel the game?
+Answer:
+For MVP, this applies to the current organizer, not a separate moderator role.
+MVP organizer permissions:
+ Edit standard game details.
+ Hide inappropriate game messages.
+ Transfer organizer responsibility to another joined player.
+ Manage basic participant/game state where required.
+Important limitation:
+For standard games with joined participants, the organizer cannot cancel or
+delete the game simply because they can no longer attend.
+Post-MVP moderator permissions to evaluate:
+ Edit game details.
+ Hide game messages.
+ Remove participants.
+ Close participation when the game is full or no longer accepting players.
+The ability to cancel a standard game should remain limited or unavailable once
+participants have joined.
+2B.3 Can a game creator demote or remove a moderator they have
+promoted? If so, what happens to any changes the moderator made
+while in that role?
+Answer:
+Moderator demotion/removal is post-MVP because moderator promotion is post-
+MVP.
+For MVP, organizer transfer should be supported.
+MVP behavior:
+ Current organizer can transfer organizer responsibility to another joined
+player.
+ Once transferred, the new organizer becomes the current organizer.
+ The previous organizer no longer has organizer permissions unless
+organizer responsibility is transferred back.
+ Changes made while a user was organizer remain in place.
+ The system should keep an audit record of organizer changes and
+important game edits.
+2C — Notifications
+2C.1 Which notification events are required at MVP? At a minimum,
+should users receive push notifications when: (a) someone joins their
+game, (b) a game they joined is updated, or (c) they receive a game
+message?
+Answer:
+MVP should include a limited set of basic push notifications.
+Required MVP notification events:
+ Someone joins a game the user organizes.
+ A game the user joined is updated.
+ Organizer responsibility is transferred for a game the user joined.
+ A lesson or pro game the user joined is canceled.
+ A user receives a new game message in a game they joined.
+ Coach/pro application status changes.
+ Coach/pro subscription status requires user attention.
+Post-MVP notification events:
+ Direct message notifications.
+ Group message notifications.
+ Followed user activity notifications.
+ Advanced reminder notifications.
+ Notification digests.
+2C.2 Should notification preferences, such as muting a specific game,
+be configurable by the user at MVP, or will all notifications be on by
+default with no user controls until post-MVP?
+Answer:
+For MVP, notification preferences should be minimal.
+MVP behavior:
+ Notifications are on by default after the user grants OS-level notification
+permission.
+ Users can rely on iOS/Android system settings to disable notifications.
+ In-app notification preferences, including muting a specific game, are post-
+MVP.
+2C.3 Should notifications be delivered via push only, or should in-app
+notification badges and an inbox notification list also be supported at
+MVP?
+Answer:
+For MVP, support push notifications and basic in-app unread indicators/badges
+where necessary.
+A full notification inbox/list can be post-MVP.
+MVP behavior:
+ Push notifications for required MVP events.
+ Basic unread state or badge for game messages.
+ Basic status indicators for coach/pro application or subscription state,
+where needed.
+ No full notification center required at launch.
+Post-MVP behavior:
+ Notification inbox/list.
+ Notification detail screen.
+ Notification preferences.
+ Per-game mute controls.
+2D — Game Creation Fields
+2D.1 Should age group and gender group fields be mandatory or
+optional when creating a game at MVP?
+Answer:
+Age group and gender group should be mandatory at MVP, but both should
+include an All option.
+MVP behavior:
+ Age Group is required.
+ Gender/Participation Group is required.
+ Default selection may be All to reduce friction.
+2D.2 Should the age group and gender group filters appear in the
+game discovery search at MVP, or only in the game creation form?
+Answer:
+They should appear in game discovery filters at MVP.
+MVP behavior:
+ Users can filter games by age group.
+ Users can filter games by gender/participation group.
+ Games marked All should appear broadly unless filter logic intentionally
+excludes them.
+2D.3 Are there any inclusivity, legal, or regional considerations that
+should influence how age and gender group options are displayed or
+labelled in the app?
+Answer:
+Yes. This should be reviewed carefully before launch.
+Recommended MVP approach:
+ Use neutral, user-friendly labels.
+ Include All as an option for both age group and gender/participation
+group.
+ Avoid presenting gender group as a statement about a user’s identity;
+frame it as the intended participation group for a specific game.
+ Avoid collecting unnecessary sensitive profile data unless required for
+product functionality.
+ Consider legal review before launch, especially if the platform is used
+across different regions.
+Potential label adjustment:
+Instead of Gender Group, consider Participation Group if the product team
+wants a softer label.
+Section 3 — Supporting Product Decisions
+3A — Admin & Backend Readiness
+3A.1 Are there specific admin capabilities that must be operable at
+MVP, even if only via internal tools or direct database access?
+Answer:
+Yes. MVP requires internal admin capabilities because coach/pro verification,
+subscriptions, payments, user-generated content, and moderation are all part of
+launch scope.
+Required MVP admin capabilities:
+ View users.
+ Disable or ban a user.
+ View games, lessons, and pro games.
+ View coach/pro applications.
+ Approve, reject, or request more information for coach/pro applications.
+ Assign or remove coach/pro status.
+ View coach/pro subscription status.
+ Comp coach/pro/pro-related subscription access where applicable.
+ Cancel or remove inappropriate activities from discovery if required for
+safety/moderation.
+ View reported game messages.
+ Hide or remove reported game messages.
+ View basic report history.
+ View payment/registration status for paid lessons and paid pro games.
+These capabilities can be supported through lightweight internal tooling, a
+protected admin interface, or carefully controlled direct database operations if
+necessary.
+3A.2 Who on the client side is responsible for handling verification
+applications and moderation incidents during the MVP period, before
+an admin dashboard is built?
+Answer:
+The client/product team must identify an internal owner before launch.
+MVP requirement:
+ Assign at least one internal operations/admin owner for coach/pro
+verification.
+ Assign at least one internal operations/admin owner for moderation
+reports.
+ Define an escalation path for urgent safety issues.
+ Define who has permission to approve/reject coach and pro applications.
+ Define who has permission to ban users, hide messages, remove activities
+from discovery, and comp subscriptions.
+Open client decision:
+Name the specific person or team responsible for MVP verification and
+moderation operations.
+3B — Payments & Refunds
+3B.1 Has a payment provider been selected for the platform? If not,
+when does this decision need to be made relative to the MVP launch?
+Answer:
+A payment provider must be selected for MVP because paid lessons, paid pro
+games, and coach/pro subscriptions are part of MVP.
+MVP requirement:
+ Select payment provider before detailed MVP implementation begins.
+ Confirm whether paid event registration is handled through Stripe or
+another external payment provider.
+ Confirm whether coach/pro subscriptions are handled through Stripe,
+RevenueCat, Apple/Google in-app purchase, or another subscription
+provider.
+ Confirm platform rules around in-app purchases depending on whether
+subscriptions unlock digital features, real-world services, or both.
+Open decision:
+Final payment provider is not selected yet.
+Recommendation:
+Evaluate Stripe for paid real-world activities and marketplace-style payments.
+Evaluate RevenueCat or direct Apple/Google in-app purchase if app-store-
+managed subscriptions are required.
+3B.2 What is the platform’s intended refund policy for paid lessons
+and paid pro-status games?
+Answer:
+Refund policy must be defined before MVP launch because paid lessons and paid
+pro games are part of MVP.
+Recommended starting policy for review:
+ Full refund if the participant cancels at least 24 hours before the activity.
+ No automatic refund within 24 hours unless the host cancels or there are
+extenuating circumstances.
+ Full refund if the coach/pro host cancels.
+ Platform/admin discretion for disputes.
+This policy should be reviewed with legal and operations before implementation.
+Open decision:
+Final refund policy is not yet approved.
+3B.3 What percentage or flat fee does the platform take from paid
+lessons and paid pro-status games?
+Answer:
+This is a required MVP business decision because paid lessons and paid pro
+games are part of MVP.
+Open decision:
+The platform fee has not been finalized.
+Potential models include:
+ Percentage-based platform fee.
+ Flat fee per transaction.
+ Combination of percentage plus flat fee.
+ Subscription-only model with no per-transaction fee.
+This decision should be made before payment UI, payout logic, and financial
+reporting are finalized.
