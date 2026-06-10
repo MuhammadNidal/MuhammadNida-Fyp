@@ -117,7 +117,7 @@ export default function ExploreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Explore</Text>
         <View style={styles.searchRow}>
           <View
@@ -131,7 +131,7 @@ export default function ExploreScreen() {
               style={[styles.searchInput, { color: colors.foreground }]}
               placeholder={
                 tab === 0
-                  ? "Search games, sports, locations..."
+                  ? "Search games, sports..."
                   : tab === 1
                   ? "Search players..."
                   : "Search your roster..."

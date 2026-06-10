@@ -41,15 +41,15 @@ export function GameCard({ game, hostName }: GameCardProps) {
       <View style={styles.top}>
         <SportBadge sport={game.sport} type={game.type} small />
         {game.isPaid && (
-          <View style={[styles.pricePill, { backgroundColor: "#16A34A18" }]}>
-            <Text style={[styles.priceText, { color: "#16A34A" }]}>
+          <View style={[styles.pricePill, { backgroundColor: colors.primary + "18" }]}> 
+            <Text style={[styles.priceText, { color: colors.primary }]}> 
               ${game.price}
             </Text>
           </View>
         )}
         {!game.isPaid && (
-          <View style={[styles.pricePill, { backgroundColor: "#F0FDF4" }]}>
-            <Text style={[styles.priceText, { color: "#16A34A" }]}>Free</Text>
+          <View style={[styles.pricePill, { backgroundColor: "#F0FDF4" }]}> 
+            <Text style={[styles.priceText, { color: colors.primary }]}>Free</Text>
           </View>
         )}
       </View>
@@ -83,13 +83,13 @@ export function GameCard({ game, hostName }: GameCardProps) {
         <View
           style={[
             styles.spotsPill,
-            { backgroundColor: isFull ? "#EF444420" : "#16A34A18" },
+            { backgroundColor: isFull ? "#EF444420" : colors.primary + "18" },
           ]}
         >
           <Text
             style={[
               styles.spotsText,
-              { color: isFull ? "#EF4444" : "#16A34A" },
+              { color: isFull ? "#EF4444" : colors.primary },
             ]}
           >
             {isFull ? "Full" : `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left`}

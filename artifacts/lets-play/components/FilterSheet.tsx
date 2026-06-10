@@ -55,8 +55,8 @@ function Chip({
       style={[
         styles.chip,
         {
-          backgroundColor: selected ? (color ?? "#16A34A") + "18" : colors.muted,
-          borderColor: selected ? (color ?? "#16A34A") : "transparent",
+          backgroundColor: selected ? (color ?? colors.primary) + "18" : colors.muted,
+          borderColor: selected ? (color ?? colors.primary) : "transparent",
           borderWidth: 1.5,
         },
       ]}
@@ -64,7 +64,7 @@ function Chip({
       <Text
         style={[
           styles.chipText,
-          { color: selected ? (color ?? "#16A34A") : colors.mutedForeground },
+          { color: selected ? (color ?? colors.primary) : colors.mutedForeground },
         ]}
       >
         {label}
@@ -107,7 +107,7 @@ export function FilterSheet({ visible, onClose, filters, onApply }: FilterSheetP
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { color: colors.foreground }]}>Filters</Text>
           <Pressable onPress={reset}>
-            <Text style={{ color: "#16A34A", fontFamily: "Inter_500Medium", fontSize: 14 }}>
+            <Text style={{ color: colors.primary, fontFamily: "Inter_500Medium", fontSize: 14 }}>
               Reset
             </Text>
           </Pressable>
@@ -198,7 +198,7 @@ export function FilterSheet({ visible, onClose, filters, onApply }: FilterSheetP
 
         <Pressable
           onPress={apply}
-          style={[styles.applyBtn, { backgroundColor: "#16A34A" }]}
+          style={[styles.applyBtn, { backgroundColor: colors.primary }]}
         >
           <Text style={styles.applyText}>Apply Filters</Text>
         </Pressable>

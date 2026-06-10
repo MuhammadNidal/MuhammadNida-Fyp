@@ -32,7 +32,7 @@ export default function VerifyScreen() {
   if (currentUser?.verificationStatus === "pending") {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={[styles.header, { paddingTop: 12 }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={22} color={colors.foreground} />
           </Pressable>
@@ -44,7 +44,7 @@ export default function VerifyScreen() {
           </View>
           <Text style={[styles.pendingTitle, { color: colors.foreground }]}>Application Under Review</Text>
           <Text style={[styles.pendingText, { color: colors.mutedForeground }]}>
-            Your verification application has been submitted and is being reviewed by the Let's Play team. We'll notify you once a decision has been made.
+            Your verification application has been submitted and is being reviewed by the Play Connect team. We'll notify you once a decision has been made.
           </Text>
         </View>
       </View>
@@ -54,7 +54,7 @@ export default function VerifyScreen() {
   if (currentUser?.verificationStatus === "verified") {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={[styles.header, { paddingTop: 12 }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={22} color={colors.foreground} />
           </Pressable>
@@ -84,7 +84,7 @@ export default function VerifyScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         "Application Submitted",
-        "Your verification application has been submitted. The Let's Play team will review it and get back to you.",
+        "Your verification application has been submitted. The Play Connect team will review it and get back to you.",
         [{ text: "OK", onPress: () => router.back() }]
       );
     } finally {
@@ -100,7 +100,7 @@ export default function VerifyScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color={colors.foreground} />
         </Pressable>
@@ -172,7 +172,7 @@ export default function VerifyScreen() {
         <View style={[styles.notice, { backgroundColor: "#F0FDF4", borderColor: "#BBF7D0" }]}>
           <Feather name="info" size={14} color="#16A34A" />
           <Text style={[styles.noticeText, { color: "#15803D" }]}>
-            Applications are manually reviewed by the Let's Play team. We'll contact you once a decision has been made.
+            Applications are manually reviewed by the Play Connect team. We'll contact you once a decision has been made.
           </Text>
         </View>
 

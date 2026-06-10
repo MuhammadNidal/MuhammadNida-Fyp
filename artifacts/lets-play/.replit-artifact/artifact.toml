@@ -1,6 +1,6 @@
 kind = "mobile"
 previewPath = "/"
-title = "Let's Play"
+title = "Play Connect"
 version = "1.0.0"
 id = "artifacts/lets-play"
 router = "expo-domain"

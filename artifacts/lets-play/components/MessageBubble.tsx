@@ -25,11 +25,11 @@ export function MessageBubble({ content, isMine, senderName, createdAt }: Messag
         style={[
           styles.bubble,
           isMine
-            ? { backgroundColor: "#16A34A" }
+            ? { backgroundColor: colors.primary }
             : { backgroundColor: colors.muted, borderColor: colors.border, borderWidth: 1 },
         ]}
       >
-        <Text style={[styles.text, { color: isMine ? "#fff" : colors.foreground }]}>
+        <Text style={[styles.text, { color: isMine ? colors.primaryForeground : colors.foreground }]}> 
           {content}
         </Text>
       </View>

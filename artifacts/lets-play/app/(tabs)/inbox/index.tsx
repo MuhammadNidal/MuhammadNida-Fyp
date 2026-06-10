@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { ConversationItem } from "@/components/ConversationItem";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,7 +10,6 @@ import { User } from "@/types";
 
 export default function InboxScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { currentUser } = useAuth();
   const { conversations, getAllUsers, isLoading } = useData();
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -31,7 +29,7 @@ export default function InboxScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Messages</Text>
       </View>
 

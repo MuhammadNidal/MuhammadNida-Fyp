@@ -18,15 +18,10 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function roleColor(role?: string): string {
-  if (role === "pro") return "#F97316";
-  if (role === "coach") return "#8B5CF6";
-  return "#16A34A";
-}
-
 export function Avatar({ name, avatarUrl, size = 44, role }: AvatarProps) {
   const colors = useColors();
   const fontSize = Math.max(12, Math.floor(size * 0.38));
+  const roleColor = role === "pro" ? "#F97316" : role === "coach" ? "#8B5CF6" : colors.primary;
 
   return (
     <View style={[styles.wrapper, { width: size, height: size, borderRadius: size / 2 }]}>
@@ -43,13 +38,13 @@ export function Avatar({ name, avatarUrl, size = 44, role }: AvatarProps) {
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: roleColor(role) + "20",
+              backgroundColor: roleColor + "20",
               borderWidth: 1.5,
-              borderColor: roleColor(role) + "40",
+              borderColor: roleColor + "40",
             },
           ]}
         >
-          <Text style={[styles.initials, { fontSize, color: roleColor(role) }]}>
+          <Text style={[styles.initials, { fontSize, color: roleColor }]}> 
             {getInitials(name)}
           </Text>
         </View>
@@ -58,7 +53,7 @@ export function Avatar({ name, avatarUrl, size = 44, role }: AvatarProps) {
         <View
           style={[
             styles.badge,
-            { backgroundColor: roleColor(role), right: -2, bottom: -2 },
+            { backgroundColor: roleColor, right: -2, bottom: -2 },
           ]}
         >
           <Text style={styles.badgeText}>{role === "pro" ? "P" : "C"}</Text>

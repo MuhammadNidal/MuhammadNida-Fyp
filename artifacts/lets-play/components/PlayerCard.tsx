@@ -38,7 +38,7 @@ export function PlayerCard({ user, onFollow, isFollowing }: PlayerCardProps) {
           <View style={styles.nameRow}>
             <Text style={[styles.name, { color: colors.foreground }]}>{user.name}</Text>
             {user.verificationStatus === "verified" && (
-              <Feather name="check-circle" size={14} color="#16A34A" />
+              <Feather name="check-circle" size={14} color={colors.primary} />
             )}
             {roleBadge && (
               <View style={[styles.rolePill, { backgroundColor: roleBadgeColor + "18" }]}>
@@ -54,20 +54,20 @@ export function PlayerCard({ user, onFollow, isFollowing }: PlayerCardProps) {
           </Text>
         </View>
         {onFollow && (
-          <Pressable
+            <Pressable
             onPress={onFollow}
             style={[
               styles.followBtn,
               {
-                backgroundColor: isFollowing ? colors.muted : "#16A34A",
-                borderColor: isFollowing ? colors.border : "#16A34A",
+                backgroundColor: isFollowing ? colors.muted : colors.primary,
+                borderColor: isFollowing ? colors.border : colors.primary,
               },
             ]}
           >
             <Text
               style={[
                 styles.followText,
-                { color: isFollowing ? colors.mutedForeground : "#fff" },
+                { color: isFollowing ? colors.mutedForeground : colors.primaryForeground },
               ]}
             >
               {isFollowing ? "Following" : "Follow"}

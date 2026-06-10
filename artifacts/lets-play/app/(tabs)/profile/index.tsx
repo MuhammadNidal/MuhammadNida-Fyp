@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { SportBadge } from "@/components/SportBadge";
 import { GameCard } from "@/components/GameCard";
@@ -13,7 +12,6 @@ import { useColors } from "@/hooks/useColors";
 
 export default function ProfileScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { currentUser } = useAuth();
   const { games, isLoading } = useData();
 
@@ -29,7 +27,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.topBar, { paddingTop: 8 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Profile</Text>
         <Pressable
           onPress={() => router.push("/(tabs)/profile/settings")}

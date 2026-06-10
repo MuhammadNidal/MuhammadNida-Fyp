@@ -188,7 +188,7 @@ export default function CreateScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Create</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           {gameType === "game"

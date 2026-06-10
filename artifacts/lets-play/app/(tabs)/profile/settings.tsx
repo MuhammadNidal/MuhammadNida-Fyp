@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -55,7 +54,6 @@ function SectionHeader({ label }: { label: string }) {
 
 export default function SettingsScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { currentUser, signOut } = useAuth();
   const [subPlan, setSubPlan] = useState<"monthly" | "yearly">("monthly");
 
@@ -78,7 +76,7 @@ export default function SettingsScreen() {
   const handleSubscription = (plan: "monthly" | "yearly") => {
     Alert.alert(
       `${plan === "monthly" ? "Monthly" : "Yearly"} Subscription`,
-      `Subscribe to maintain your ${currentUser?.role} status on Let's Play?\n\n${plan === "monthly" ? "$9.99/month" : "$89.99/year (save 25%)"}\n\nPayment processing coming soon.`,
+      `Subscribe to maintain your ${currentUser?.role} status on Play Connect?\n\n${plan === "monthly" ? "$9.99/month" : "$89.99/year (save 25%)"}\n\nPayment processing coming soon.`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -97,7 +95,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color={colors.foreground} />
         </Pressable>

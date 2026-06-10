@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GameCard } from "@/components/GameCard";
 import { EmptyState } from "@/components/EmptyState";
 import { SegmentedControl } from "@/components/SegmentedControl";
@@ -10,7 +9,6 @@ import { useColors } from "@/hooks/useColors";
 
 export default function MatchesScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { currentUser } = useAuth();
   const { games, isLoading } = useData();
   const [tab, setTab] = useState(0);
@@ -47,7 +45,7 @@ export default function MatchesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Matches</Text>
         <SegmentedControl
           options={[`Upcoming (${upcoming.length})`, `Past`, `Created (${created.length})`]}

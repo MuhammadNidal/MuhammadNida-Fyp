@@ -47,7 +47,7 @@ export default function EditProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: 12 }]}>
         <Pressable onPress={() => router.back()} style={styles.cancelBtn}>
           <Text style={[styles.cancelText, { color: colors.mutedForeground }]}>Cancel</Text>
         </Pressable>

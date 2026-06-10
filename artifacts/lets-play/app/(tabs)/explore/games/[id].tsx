@@ -110,7 +110,7 @@ export default function GameDetailScreen() {
     try {
       await Share.share({
         title: game.title,
-        message: `Join me for "${game.title}" — ${game.sport} at ${game.locationName}, ${game.city} on ${formatDate(game.date)}. Find it on Let's Play!`,
+        message: `Join me for "${game.title}" — ${game.sport} at ${game.locationName}, ${game.city} on ${formatDate(game.date)}. Find it on Play Connect!`,
       });
     } catch {
       // share dismissed
@@ -183,7 +183,7 @@ export default function GameDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.topBar, { paddingTop: 8 }]}>
         <Pressable onPress={() => router.back()} style={styles.iconBtn}>
           <Feather name="arrow-left" size={22} color={colors.foreground} />
         </Pressable>

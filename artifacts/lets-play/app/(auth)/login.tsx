@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
+import { validateLogin } from "@/validation";
 
 export default function LoginScreen() {
   const colors = useColors();
@@ -28,10 +29,12 @@ export default function LoginScreen() {
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter your email and password");
+    const result = validateLogin(email, password);
+    if (!result.valid) {
+      setError(result.message || "Please enter your email and password");
       return;
     }
+
     setError("");
     setLoading(true);
     try {
@@ -73,10 +76,10 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.logoArea}>
-          <View style={[styles.logoMark, { backgroundColor: "#16A34A" }]}>
+          <View style={[styles.logoMark, { backgroundColor: colors.primary }]}> 
             <Feather name="play" size={28} color="#fff" />
           </View>
-          <Text style={[styles.appName, { color: colors.foreground }]}>Let's Play</Text>
+          <Text style={[styles.appName, { color: colors.foreground }]}>Play Connect</Text>
           <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
             Find your game. Meet your people.
           </Text>
@@ -127,7 +130,7 @@ export default function LoginScreen() {
             disabled={loading}
             style={({ pressed }) => [
               styles.primaryBtn,
-              { backgroundColor: "#16A34A", opacity: pressed || loading ? 0.85 : 1 },
+              { backgroundColor: colors.primary, opacity: pressed || loading ? 0.85 : 1 },
             ]}
           >
             {loading ? (
@@ -155,9 +158,9 @@ export default function LoginScreen() {
           onPress={() => router.push("/(auth)/register")}
           style={styles.signupLink}
         >
-          <Text style={[styles.signupText, { color: colors.mutedForeground }]}>
+          <Text style={[styles.signupText, { color: colors.mutedForeground }]}> 
             Don't have an account?{" "}
-            <Text style={{ color: "#16A34A", fontFamily: "Inter_600SemiBold" }}>Sign up</Text>
+            <Text style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}>Sign up</Text>
           </Text>
         </Pressable>
       </ScrollView>
