@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -64,28 +65,30 @@ export default function PlayerProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <Feather name="arrow-left" size={22} color={colors.foreground} />
-        </Pressable>
-      </View>
-
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={styles.profileHeader}>
-          <Avatar name={user.name} avatarUrl={user.avatarUrl} role={user.role} size={80} />
-          <View style={styles.nameBlock}>
+        <View style={styles.heroSection}>
+          {user.avatarUrl ? (
+             <Image source={{ uri: user.avatarUrl }} style={styles.heroImage} />
+          ) : (
+            <View style={[styles.heroImage, { backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }]}>
+               <Feather name="user" size={60} color={colors.mutedForeground} />
+            </View>
+          )}
+          <View style={styles.heroOverlay} />
+          <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+            <Pressable onPress={() => router.back()} style={styles.backBtn}>
+              <Feather name="arrow-left" size={22} color="#fff" />
+            </Pressable>
+          </View>
+          
+          <View style={styles.heroContent}>
             <View style={styles.nameRow}>
-              <Text style={[styles.name, { color: colors.foreground }]}>{user.name}</Text>
+              <Text style={styles.heroName}>{user.name}</Text>
               {user.verificationStatus === "verified" && (
-                <Feather name="check-circle" size={16} color="#16A34A" />
+                <Feather name="check-circle" size={18} color="#10B981" />
               )}
             </View>
-            <Text style={[styles.username, { color: colors.mutedForeground }]}>@{user.username}</Text>
-            {roleBadge && (
-              <View style={[styles.rolePill, { backgroundColor: roleBadgeColor + "18" }]}>
-                <Text style={[styles.roleText, { color: roleBadgeColor }]}>{roleBadge}</Text>
-              </View>
-            )}
+            <Text style={styles.heroUsername}>@{user.username}</Text>
           </View>
         </View>
 
@@ -109,8 +112,8 @@ export default function PlayerProfileScreen() {
               style={({ pressed }) => [
                 styles.actionBtn,
                 {
-                  backgroundColor: isFollowing ? colors.muted : "#16A34A",
-                  borderColor: isFollowing ? colors.border : "#16A34A",
+                  backgroundColor: isFollowing ? colors.muted : colors.primary,
+                  borderColor: isFollowing ? colors.border : colors.primary,
                   opacity: pressed ? 0.85 : 1,
                 },
               ]}
@@ -134,10 +137,17 @@ export default function PlayerProfileScreen() {
         )}
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Location</Text>
-          <View style={styles.locationRow}>
-            <Feather name="map-pin" size={14} color={colors.mutedForeground} />
-            <Text style={[styles.locationText, { color: colors.mutedForeground }]}>{user.location}</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Role & Location</Text>
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            {roleBadge && (
+                <View style={[styles.rolePill, { backgroundColor: roleBadgeColor + "18" }]}>
+                  <Text style={[styles.roleText, { color: roleBadgeColor }]}>{roleBadge}</Text>
+                </View>
+              )}
+            <View style={styles.locationRow}>
+              <Feather name="map-pin" size={14} color={colors.mutedForeground} />
+              <Text style={[styles.locationText, { color: colors.mutedForeground }]}>{user.location}</Text>
+            </View>
           </View>
         </View>
 
@@ -175,34 +185,60 @@ export default function PlayerProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   topBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    zIndex: 10,
   },
   backBtn: {
     width: 38,
     height: 38,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 19,
   },
-  profileHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+  heroSection: {
+    height: 350,
+    width: "100%",
+    position: "relative",
   },
-  nameBlock: { flex: 1, gap: 4 },
-  nameRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  name: { fontSize: 22, fontFamily: "Inter_700Bold" },
-  username: { fontSize: 14, fontFamily: "Inter_400Regular" },
-  rolePill: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, alignSelf: "flex-start" },
+  heroImage: {
+    width: "100%",
+    height: "100%",
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  heroContent: {
+    position: "absolute",
+    bottom: 24,
+    left: 20,
+    right: 20,
+  },
+  heroName: {
+    fontSize: 28,
+    fontFamily: "Inter_700Bold",
+    color: "#fff",
+  },
+  heroUsername: {
+    fontSize: 16,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(255,255,255,0.8)",
+    marginTop: 2,
+  },
+  nameRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  rolePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   roleText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   statsRow: {
     flexDirection: "row",
     marginHorizontal: 20,
     borderRadius: 16,
-    paddingVertical: 16,
-    marginBottom: 16,
+    paddingVertical: 20,
+    marginBottom: 8,
     gap: 0,
   },
   statItem: { flex: 1, alignItems: "center", gap: 2 },
@@ -210,26 +246,26 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 12, fontFamily: "Inter_400Regular" },
   actionRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
     paddingHorizontal: 20,
     marginBottom: 24,
   },
   actionBtn: {
     flex: 1,
-    height: 44,
-    borderRadius: 12,
+    height: 48,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
     flexDirection: "row",
-    gap: 6,
+    gap: 8,
   },
   outlineBtn: { backgroundColor: "transparent" },
   actionBtnText: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
-  section: { paddingHorizontal: 20, marginBottom: 20, gap: 10 },
-  sectionTitle: { fontSize: 17, fontFamily: "Inter_600SemiBold" },
+  section: { paddingHorizontal: 20, marginBottom: 24, gap: 12 },
+  sectionTitle: { fontSize: 18, fontFamily: "Inter_600SemiBold" },
   locationRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  locationText: { fontSize: 14, fontFamily: "Inter_400Regular" },
-  bio: { fontSize: 15, fontFamily: "Inter_400Regular", lineHeight: 22 },
-  sportsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  locationText: { fontSize: 15, fontFamily: "Inter_400Regular" },
+  bio: { fontSize: 15, fontFamily: "Inter_400Regular", lineHeight: 24 },
+  sportsRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
 });

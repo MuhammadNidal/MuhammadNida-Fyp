@@ -1,8 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Avatar } from "./Avatar";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SportBadge } from "./SportBadge";
 import { useColors } from "@/hooks/useColors";
 import { User } from "@/types";
@@ -28,156 +27,206 @@ export function PlayerCard({ user, onFollow, isFollowing }: PlayerCardProps) {
         {
           backgroundColor: colors.card,
           borderColor: colors.border,
-          opacity: pressed ? 0.93 : 1,
+          opacity: pressed ? 0.95 : 1,
         },
       ]}
     >
-      <View style={styles.row}>
-        <Avatar name={user.name} avatarUrl={user.avatarUrl} role={user.role} size={52} />
-        <View style={styles.info}>
-          <View style={styles.nameRow}>
-            <Text style={[styles.name, { color: colors.foreground }]}>{user.name}</Text>
-            {user.verificationStatus === "verified" && (
-              <Feather name="check-circle" size={14} color={colors.primary} />
-            )}
-            {roleBadge && (
-              <View style={[styles.rolePill, { backgroundColor: roleBadgeColor + "18" }]}>
-                <Text style={[styles.roleText, { color: roleBadgeColor }]}>{roleBadge}</Text>
-              </View>
-            )}
+      <View style={styles.imageContainer}>
+        {user.avatarUrl ? (
+          <Image source={{ uri: user.avatarUrl }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <View style={[styles.imagePlaceholder, { backgroundColor: colors.muted }]}>
+            <Feather name="user" size={40} color={colors.mutedForeground} />
           </View>
-          <Text style={[styles.username, { color: colors.mutedForeground }]}>
-            @{user.username}
-          </Text>
-          <Text style={[styles.location, { color: colors.mutedForeground }]} numberOfLines={1}>
-            <Feather name="map-pin" size={11} color={colors.mutedForeground} /> {user.location}
-          </Text>
-        </View>
-        {onFollow && (
+        )}
+        <View style={styles.imageOverlay}>
+          {roleBadge && (
+            <View style={[styles.rolePill, { backgroundColor: roleBadgeColor }]}>
+              <Text style={styles.roleTextOverlay}>{roleBadge}</Text>
+            </View>
+          )}
+          {onFollow && (
             <Pressable
-            onPress={onFollow}
-            style={[
-              styles.followBtn,
-              {
-                backgroundColor: isFollowing ? colors.muted : colors.primary,
-                borderColor: isFollowing ? colors.border : colors.primary,
-              },
-            ]}
-          >
-            <Text
+              onPress={onFollow}
               style={[
-                styles.followText,
-                { color: isFollowing ? colors.mutedForeground : colors.primaryForeground },
+                styles.followBtn,
+                {
+                  backgroundColor: isFollowing ? "rgba(255,255,255,0.2)" : colors.primary,
+                  backdropFilter: "blur(10px)",
+                },
               ]}
             >
-              {isFollowing ? "Following" : "Follow"}
-            </Text>
-          </Pressable>
-        )}
+              <Feather 
+                name={isFollowing ? "check" : "plus"} 
+                size={14} 
+                color={isFollowing ? "#fff" : colors.primaryForeground} 
+              />
+            </Pressable>
+          )}
+        </View>
+        <View style={styles.nameOverlay}>
+           <Text style={styles.nameTextOverlay} numberOfLines={1}>{user.name}</Text>
+           {user.verificationStatus === "verified" && (
+              <Feather name="check-circle" size={14} color="#10B981" />
+            )}
+        </View>
       </View>
 
-      {user.sports.length > 0 && (
-        <View style={styles.sports}>
-          {user.sports.slice(0, 3).map((s) => (
+      <View style={styles.content}>
+        <View style={styles.infoRow}>
+          <Text style={[styles.username, { color: colors.mutedForeground }]}>@{user.username}</Text>
+          <View style={styles.ratingBox}>
+             <Feather name="star" size={12} color="#EAB308" />
+             <Text style={[styles.ratingText, { color: colors.foreground }]}>{user.rating.toFixed(1)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.sportsRow}>
+          {user.sports.slice(0, 2).map((s) => (
             <SportBadge key={s} sport={s} small />
           ))}
+          {user.sports.length > 2 && (
+             <Text style={[styles.moreText, { color: colors.mutedForeground }]}>+{user.sports.length - 2}</Text>
+          )}
         </View>
-      )}
 
-      {user.rating > 0 && (
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Feather name="star" size={12} color="#EAB308" />
-            <Text style={[styles.statText, { color: colors.mutedForeground }]}>
-              {user.rating.toFixed(1)}
+        <View style={styles.footer}>
+          <View style={styles.locationItem}>
+            <Feather name="map-pin" size={11} color={colors.mutedForeground} />
+            <Text style={[styles.locationText, { color: colors.mutedForeground }]} numberOfLines={1}>
+              {user.location}
             </Text>
           </View>
-          <Text style={[styles.statDot, { color: colors.border }]}>·</Text>
-          <Text style={[styles.statText, { color: colors.mutedForeground }]}>
+          <Text style={[styles.gamesText, { color: colors.mutedForeground }]}>
             {user.gamesPlayed} games
           </Text>
         </View>
-      )}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
-    gap: 12,
+    marginBottom: 16,
+    overflow: "hidden",
+    height: 260,
   },
-  row: {
+  imageContainer: {
+    height: "60%",
+    width: "100%",
+    position: "relative",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  imagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 12,
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  info: {
-    flex: 1,
-    gap: 2,
-  },
-  nameRow: {
+  nameOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 12,
+    paddingTop: 30,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    flexWrap: "wrap",
+    backgroundColor: "rgba(0,0,0,0.3)", // Gradient would be better but simple rgba for now
   },
-  name: {
-    fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
+  nameTextOverlay: {
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "Inter_700Bold",
+  },
+  rolePill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  roleTextOverlay: {
+    fontSize: 11,
+    fontFamily: "Inter_700Bold",
+    color: "#fff",
+  },
+  followBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  content: {
+    height: "40%",
+    padding: 14,
+    justifyContent: "space-between",
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   username: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
   },
-  location: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-    marginTop: 2,
-  },
-  rolePill: {
-    paddingHorizontal: 7,
+  ratingBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(234, 179, 8, 0.1)",
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: 8,
   },
-  roleText: {
+  ratingText: {
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+  },
+  sportsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  moreText: {
     fontSize: 11,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Inter_500Medium",
   },
-  followBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1,
-    alignSelf: "flex-start",
-  },
-  followText: {
-    fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
-  },
-  sports: {
+  footer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  statsRow: {
+  locationItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
+    flex: 1,
   },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  statText: {
+  locationText: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
   },
-  statDot: {
-    fontSize: 12,
+  gamesText: {
+    fontSize: 11,
+    fontFamily: "Inter_500Medium",
   },
 });

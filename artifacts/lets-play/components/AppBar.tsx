@@ -30,37 +30,38 @@ export function AppBar() {
           style={styles.brand}
         >
           <View style={[styles.logo, { backgroundColor: colors.primary }]}>
-            <Feather name="play" size={16} color="#fff" />
+            <Feather name="zap" size={18} color="#fff" />
           </View>
           <Text style={[styles.brandText, { color: colors.foreground }]}>
-            Play Connect
+            Playground
           </Text>
         </Pressable>
 
         <View style={styles.actions}>
-          <Pressable
-            onPress={() => router.push("/(tabs)/inbox")}
-            style={[styles.actionBtn, { backgroundColor: colors.muted }]}
-          >
-            <Feather name="message-circle" size={18} color={colors.foreground} />
-          </Pressable>
           {currentUser && (
             <Pressable
               onPress={() => router.push("/(tabs)/profile")}
-              style={[styles.userBtn, { backgroundColor: colors.muted }]}
+              style={({ pressed }) => [
+                styles.userBtn, 
+                { 
+                  backgroundColor: colors.muted,
+                  opacity: pressed ? 0.8 : 1,
+                }
+              ]}
             >
               <Avatar
                 name={currentUser.name}
                 avatarUrl={currentUser.avatarUrl}
                 role={currentUser.role}
-                size={26}
+                size={28}
               />
               <Text
                 style={[styles.userName, { color: colors.foreground }]}
                 numberOfLines={1}
               >
-                {currentUser.name}
+                {currentUser.name.split(' ')[0]}
               </Text>
+              <Feather name="chevron-down" size={14} color={colors.mutedForeground} />
             </Pressable>
           )}
         </View>
@@ -71,55 +72,48 @@ export function AppBar() {
 
 const styles = StyleSheet.create({
   bar: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: 1,
   },
   inner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    height: 52,
-    paddingHorizontal: 20,
+    height: 64,
+    paddingHorizontal: 16,
   },
   brand: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
   },
   logo: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   brandText: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: "Inter_700Bold",
+    letterSpacing: -0.5,
   },
   actions: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  actionBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 36,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   userBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingLeft: 6,
-    paddingRight: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   userName: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Inter_600SemiBold",
-    maxWidth: 100,
+    maxWidth: 80,
   },
 });

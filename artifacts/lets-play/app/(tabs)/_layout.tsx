@@ -21,25 +21,24 @@ export default function TabLayout() {
             headerShown: false,
             tabBarStyle: {
               backgroundColor: colors.background,
-              borderTopWidth: StyleSheet.hairlineWidth,
+              borderTopWidth: 1,
               borderTopColor: colors.border,
-              height: isWeb ? 140 : 100,
-              paddingBottom: isWeb ? 24 : 12,
-              paddingTop: isWeb ? 16 : 10,
+              height: isWeb ? 100 : 86,
+              paddingBottom: isWeb ? 10 : 8,
+              paddingTop: 8,
+              elevation: 0,
+              shadowOpacity: 0,
             },
             tabBarItemStyle: {
-              height: isWeb ? 120 : 88,
-              paddingVertical: 12,
+              height: 48,
             },
             tabBarLabelStyle: {
-              fontSize: 11,
-              fontFamily: "Inter_500Medium",
-              marginTop: 2,
-              marginBottom: 6,
+              fontSize: 10,
+              fontFamily: "Inter_600SemiBold",
+              marginTop: 0,
             },
             tabBarIconStyle: {
-              marginTop: -4,
-              marginBottom: 2,
+              marginBottom: -2,
             },
           }}
         >

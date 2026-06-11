@@ -30,6 +30,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const usersRaw = await AsyncStorage.getItem(ALL_USERS_KEY);
         if (!usersRaw) {
           await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(MOCK_USERS));
+        } else {
+          const storedUsers: User[] = JSON.parse(usersRaw);
+          const updatedUsers = storedUsers.map(su => {
+            const mock = MOCK_USERS.find(mu => mu.id === su.id);
+            if (mock && !su.avatarUrl) {
+              return { ...su, avatarUrl: mock.avatarUrl };
+            }
+            return su;
+          });
+          await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(updatedUsers));
         }
         const savedId = await AsyncStorage.getItem(CURRENT_USER_KEY);
         if (savedId) {

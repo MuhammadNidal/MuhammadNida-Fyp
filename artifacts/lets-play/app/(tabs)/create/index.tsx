@@ -4,6 +4,8 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,6 +18,62 @@ import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useColors } from "@/hooks/useColors";
 import { SPORTS, SKILL_LEVELS, AGE_GROUPS, PARTICIPATION_GROUPS } from "@/constants/sports";
+
+// Success Modal Component
+function SuccessOverlay({ 
+  visible, 
+  onClose, 
+  gameData 
+}: { 
+  visible: boolean; 
+  onClose: () => void; 
+  gameData: any 
+}) {
+  const colors = useColors();
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={styles.modalContainer}>
+        <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+          <View style={styles.successIcon}>
+             <Feather name="check-circle" size={60} color="#16A34A" />
+          </View>
+          <Text style={[styles.successTitle, { color: colors.foreground }]}>Congratulations!</Text>
+          <Text style={[styles.successSubtitle, { color: colors.mutedForeground }]}>
+            Your event has been published successfully.
+          </Text>
+
+          <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+             <Text style={[styles.summaryTitle, { color: colors.foreground }]}>{gameData?.title}</Text>
+             <View style={styles.summaryRow}>
+                <Feather name="calendar" size={14} color={colors.mutedForeground} />
+                <Text style={[styles.summaryText, { color: colors.mutedForeground }]}>{gameData?.date || 'Today'}</Text>
+             </View>
+             <View style={styles.summaryRow}>
+                <Feather name="map-pin" size={14} color={colors.mutedForeground} />
+                <Text style={[styles.summaryText, { color: colors.mutedForeground }]}>{gameData?.city}</Text>
+             </View>
+          </View>
+
+          <View style={styles.modalActions}>
+             <Pressable 
+              onPress={() => { onClose(); router.push('/(tabs)/explore/players'); }}
+              style={[styles.modalBtn, { backgroundColor: '#16A34A' }]}
+             >
+                <Feather name="user-plus" size={18} color="#fff" />
+                <Text style={styles.modalBtnText}>Invite Players</Text>
+             </Pressable>
+             <Pressable 
+              onPress={onClose}
+              style={[styles.modalBtn, { backgroundColor: colors.muted }]}
+             >
+                <Text style={[styles.modalBtnText, { color: colors.foreground }]}>View My Matches</Text>
+             </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
 
 function SelectRow<T extends string>({
   label,
@@ -134,8 +192,10 @@ export default function CreateScreen() {
     useState<"male" | "female" | "all">("all");
   const [isPaid, setIsPaid] = useState(false);
   const [price, setPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const canCreateLesson = currentUser?.role === "coach" || currentUser?.role === "pro";
   const canCreateProGame = currentUser?.role === "pro";
@@ -158,7 +218,7 @@ export default function CreateScreen() {
     setError("");
     setLoading(true);
     try {
-      await createGame({
+      const gameData = {
         createdBy: currentUser.id,
         organizerId: currentUser.id,
         sport,
@@ -176,9 +236,11 @@ export default function CreateScreen() {
         type: gameType,
         isPaid: isPaid && gameType !== "game",
         price: isPaid && price ? parseFloat(price) : undefined,
-      });
+        imageUrl: imageUrl || undefined,
+      };
+      await createGame(gameData);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/(tabs)/matches");
+      setShowSuccess(true);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -188,6 +250,11 @@ export default function CreateScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <SuccessOverlay 
+        visible={showSuccess} 
+        onClose={() => { setShowSuccess(false); router.replace("/(tabs)/matches"); }}
+        gameData={{ title, date, city }}
+      />
       <View style={[styles.header, { paddingTop: 12 }]}>
         <Text style={[styles.title, { color: colors.foreground }]}>Create</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
@@ -284,6 +351,31 @@ export default function CreateScreen() {
               ))}
             </View>
           </ScrollView>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={[styles.label, { color: colors.foreground }]}>Event Image</Text>
+          <Pressable 
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              setImageUrl("https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=80");
+            }}
+            style={[styles.imageUpload, { backgroundColor: colors.muted, borderColor: colors.border }]}
+          >
+            {imageUrl ? (
+               <Image source={{ uri: imageUrl }} style={styles.uploadedImage} />
+            ) : (
+               <>
+                <Feather name="image" size={32} color={colors.mutedForeground} />
+                <Text style={[styles.uploadText, { color: colors.mutedForeground }]}>Tap to upload event image</Text>
+               </>
+            )}
+            {imageUrl && (
+               <Pressable onPress={(e) => { e.stopPropagation(); setImageUrl(""); }} style={styles.removeImg}>
+                  <Feather name="x" size={16} color="#fff" />
+               </Pressable>
+            )}
+          </Pressable>
         </View>
 
         <FieldInput
@@ -528,4 +620,104 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   createBtnText: { color: "#fff", fontSize: 16, fontFamily: "Inter_600SemiBold" },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    padding: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    alignItems: 'center',
+    gap: 20,
+  },
+  successIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#16A34A15',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontFamily: 'Inter_700Bold',
+  },
+  successSubtitle: {
+    fontSize: 15,
+    fontFamily: 'Inter_400Regular',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  summaryCard: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 8,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    marginBottom: 4,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  summaryText: {
+    fontSize: 14,
+    fontFamily: 'Inter_400Regular',
+  },
+  modalActions: {
+    width: '100%',
+    gap: 12,
+    marginTop: 10,
+  },
+  modalBtn: {
+    height: 54,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  modalBtnText: {
+    fontSize: 16,
+    fontFamily: 'Inter_600SemiBold',
+    color: '#fff',
+  },
+  imageUpload: {
+    height: 180,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  uploadedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  uploadText: {
+    marginTop: 12,
+    fontSize: 14,
+    fontFamily: 'Inter_500Medium',
+  },
+  removeImg: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

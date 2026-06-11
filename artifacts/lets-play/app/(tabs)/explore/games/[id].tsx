@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -218,123 +219,135 @@ export default function GameDetailScreen() {
           contentContainerStyle={styles.detailContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.badgeRow}>
-            <SportBadge sport={game.sport} type={game.type} />
-            {game.type === "lesson" && (
-              <View style={[styles.typePill, { backgroundColor: "#8B5CF618" }]}>
-                <Feather name="award" size={12} color="#8B5CF6" />
-                <Text style={[styles.typePillText, { color: "#8B5CF6" }]}>Lesson</Text>
-              </View>
-            )}
-            {game.type === "pro_game" && (
-              <View style={[styles.typePill, { backgroundColor: "#F9731618" }]}>
-                <Feather name="star" size={12} color="#F97316" />
-                <Text style={[styles.typePillText, { color: "#F97316" }]}>Pro Game</Text>
-              </View>
-            )}
-          </View>
-
-          <Text style={[styles.gameTitle, { color: colors.foreground }]}>{game.title}</Text>
-
-          <View style={styles.spotsRow}>
-            <View style={[styles.spotsPill, { backgroundColor: spotsLeft > 0 ? "#F0FDF4" : "#FEF2F2" }]}>
-              <Feather name="users" size={13} color={spotsLeft > 0 ? "#16A34A" : "#DC2626"} />
-              <Text style={[styles.spotsText, { color: spotsLeft > 0 ? "#16A34A" : "#DC2626" }]}>
-                {spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left` : "Full"}
-              </Text>
-            </View>
-            {game.isPaid && (
-              <View style={[styles.spotsPill, { backgroundColor: "#F0FDF4" }]}>
-                <Feather name="dollar-sign" size={13} color="#16A34A" />
-                <Text style={[styles.spotsText, { color: "#16A34A" }]}>${game.price} to join</Text>
-              </View>
-            )}
-          </View>
-
-          <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <InfoRow icon="calendar" text={formatDate(game.date)} />
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <InfoRow icon="clock" text={`${game.startTime} – ${game.endTime}`} />
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <InfoRow icon="map-pin" text={`${game.locationName}, ${game.city}`} />
-          </View>
-
-          <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <InfoRow icon="bar-chart-2" text={skillLabels[game.skillLevel] ?? game.skillLevel} />
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <InfoRow icon="users" text={groupLabels[game.participationGroup]} />
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-            <InfoRow icon="user-check" text={ageLabels[game.ageGroup]} />
-          </View>
-
-          {game.description ? (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>About</Text>
-              <Text style={[styles.description, { color: colors.mutedForeground }]}>
-                {game.description}
-              </Text>
-            </View>
-          ) : null}
-
-          {host && (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Host</Text>
-              <Pressable
-                onPress={() => router.push(`/(tabs)/explore/players/${host.id}`)}
-                style={[styles.hostCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-              >
-                <Avatar
-                  name={host.name}
-                  avatarUrl={host.avatarUrl}
-                  role={host.role}
-                  size={44}
-                />
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    <Text style={[styles.hostName, { color: colors.foreground }]}>{host.name}</Text>
-                    {host.verificationStatus === "verified" && (
-                      <Feather name="check-circle" size={13} color="#16A34A" />
-                    )}
-                  </View>
-                  <Text style={[styles.hostSub, { color: colors.mutedForeground }]}>
-                    @{host.username} ·{" "}
-                    {host.role === "coach" ? "Coach" : host.role === "pro" ? "Pro" : "Player"}
-                  </Text>
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-              </Pressable>
+          {game.imageUrl && (
+            <View style={styles.heroContainer}>
+              <Image source={{ uri: game.imageUrl }} style={styles.heroImage} />
+              <View style={styles.heroOverlay} />
             </View>
           )}
 
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              Players ({game.participants.length}/{game.maxPlayers})
-            </Text>
-            <View
-              style={[styles.participantsCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-            >
-              {participants.map((p, idx) => (
-                <View key={p.id}>
-                  <Pressable
-                    onPress={() => router.push(`/(tabs)/explore/players/${p.id}`)}
-                    style={styles.participantRow}
-                  >
-                    <Avatar name={p.name} avatarUrl={p.avatarUrl} role={p.role} size={36} />
-                    <Text style={[styles.participantName, { color: colors.foreground }]}>{p.name}</Text>
-                    {p.id === game.organizerId && (
-                      <View style={[styles.organizerBadge, { backgroundColor: "#16A34A18" }]}>
-                        <Text style={{ color: "#16A34A", fontSize: 11, fontFamily: "Inter_600SemiBold" }}>
-                          Organizer
-                        </Text>
-                      </View>
-                    )}
-                    <Feather name="chevron-right" size={14} color={colors.mutedForeground} />
-                  </Pressable>
-                  {idx < participants.length - 1 && (
-                    <View style={[styles.divider, { backgroundColor: colors.border, marginLeft: 60 }]} />
-                  )}
+          <View style={styles.contentPadding}>
+            <View style={styles.badgeRow}>
+              <SportBadge sport={game.sport} type={game.type} />
+              {game.type === "lesson" && (
+                <View style={[styles.typePill, { backgroundColor: "#8B5CF618" }]}>
+                  <Feather name="award" size={12} color="#8B5CF6" />
+                  <Text style={[styles.typePillText, { color: "#8B5CF6" }]}>Lesson</Text>
                 </View>
-              ))}
+              )}
+              {game.type === "pro_game" && (
+                <View style={[styles.typePill, { backgroundColor: "#F9731618" }]}>
+                  <Feather name="star" size={12} color="#F97316" />
+                  <Text style={[styles.typePillText, { color: "#F97316" }]}>Pro Game</Text>
+                </View>
+              )}
+            </View>
+
+            <Text style={[styles.gameTitle, { color: colors.foreground }]}>{game.title}</Text>
+
+            <View style={styles.spotsRow}>
+              <View style={[styles.spotsPill, { backgroundColor: spotsLeft > 0 ? "#F0FDF4" : "#FEF2F2" }]}>
+                <Feather name="users" size={13} color={spotsLeft > 0 ? "#16A34A" : "#DC2626"} />
+                <Text style={[styles.spotsText, { color: spotsLeft > 0 ? "#16A34A" : "#DC2626" }]}>
+                  {spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left` : "Full"}
+                </Text>
+              </View>
+              {game.isPaid && (
+                <View style={[styles.spotsPill, { backgroundColor: "#F0FDF4" }]}>
+                  <Feather name="dollar-sign" size={13} color="#16A34A" />
+                  <Text style={[styles.spotsText, { color: "#16A34A" }]}>${game.price} to join</Text>
+                </View>
+              )}
+            </View>
+
+            <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <InfoRow icon="calendar" text={formatDate(game.date)} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <InfoRow icon="clock" text={`${game.startTime} – ${game.endTime}`} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <InfoRow icon="map-pin" text={`${game.locationName}, ${game.city}`} />
+            </View>
+
+            <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <InfoRow icon="bar-chart-2" text={skillLabels[game.skillLevel] ?? game.skillLevel} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <InfoRow icon="users" text={groupLabels[game.participationGroup]} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <InfoRow icon="user-check" text={ageLabels[game.ageGroup]} />
+            </View>
+
+            {game.description ? (
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: colors.foreground }]}>About</Text>
+                <Text style={[styles.description, { color: colors.mutedForeground }]}>
+                  {game.description}
+                </Text>
+              </View>
+            ) : null}
+
+            {host && (
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Host</Text>
+                <Pressable
+                  onPress={() => router.push(`/(tabs)/explore/players/${host.id}`)}
+                  style={[styles.hostCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                >
+                  <Avatar
+                    name={host.name}
+                    avatarUrl={host.avatarUrl}
+                    role={host.role}
+                    size={44}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Text style={[styles.hostName, { color: colors.foreground }]}>{host.name}</Text>
+                      {host.verificationStatus === "verified" && (
+                        <Feather name="check-circle" size={13} color="#16A34A" />
+                      )}
+                    </View>
+                    <Text style={[styles.hostSub, { color: colors.mutedForeground }]}>
+                      @{host.username} ·{" "}
+                      {host.role === "coach" ? "Coach" : host.role === "pro" ? "Pro" : "Player"}
+                    </Text>
+                  </View>
+                  <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+                </Pressable>
+              </View>
+            )}
+
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                Players ({game.participants.length}/{game.maxPlayers})
+              </Text>
+              <View
+                style={[styles.participantsCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              >
+                {participants.map((p, idx) => (
+                  <View key={p.id}>
+                    <Pressable
+                      onPress={() => router.push(`/(tabs)/explore/players/${p.id}`)}
+                      style={styles.participantRow}
+                    >
+                      <Avatar name={p.name} avatarUrl={p.avatarUrl} role={p.role} size={40} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.participantName, { color: colors.foreground }]}>{p.name}</Text>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>@{p.username}</Text>
+                      </View>
+                      {p.id === game.organizerId && (
+                        <View style={[styles.organizerBadge, { backgroundColor: "#16A34A18" }]}>
+                          <Text style={{ color: "#16A34A", fontSize: 11, fontFamily: "Inter_600SemiBold" }}>
+                            Organizer
+                          </Text>
+                        </View>
+                      )}
+                      <Feather name="chevron-right" size={14} color={colors.mutedForeground} />
+                    </Pressable>
+                    {idx < participants.length - 1 && (
+                      <View style={[styles.divider, { backgroundColor: colors.border, marginLeft: 66 }]} />
+                    )}
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
 
@@ -490,12 +503,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingBottom: 12,
     gap: 8,
+    zIndex: 10,
   },
   iconBtn: {
     width: 40,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 20,
   },
   tabPills: {
     flexDirection: "row",
@@ -512,8 +528,24 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
   },
   detailContent: {
+    paddingTop: 0,
+  },
+  heroContainer: {
+    height: 250,
+    width: "100%",
+    position: "relative",
+  },
+  heroImage: {
+    width: "100%",
+    height: "100%",
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.1)",
+  },
+  contentPadding: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 20,
     gap: 16,
   },
   badgeRow: {

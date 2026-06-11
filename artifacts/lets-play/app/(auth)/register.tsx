@@ -127,7 +127,7 @@ export default function RegisterScreen() {
             disabled={loading}
             style={({ pressed }) => [
               styles.primaryBtn,
-              { backgroundColor: "#16A34A", opacity: pressed || loading ? 0.85 : 1 },
+              { backgroundColor: colors.primary, opacity: pressed || loading ? 0.85 : 1 },
             ]}
           >
             {loading ? (
@@ -145,7 +145,7 @@ export default function RegisterScreen() {
         <Pressable onPress={() => router.back()} style={styles.loginLink}>
           <Text style={[styles.loginText, { color: colors.mutedForeground }]}>
             Already have an account?{" "}
-            <Text style={{ color: "#16A34A", fontFamily: "Inter_600SemiBold" }}>Sign in</Text>
+            <Text style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}>Sign in</Text>
           </Text>
         </Pressable>
       </ScrollView>

@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,6 +23,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useColors } from "@/hooks/useColors";
 import { User } from "@/types";
+import { SPORTS } from "@/constants/sports";
 
 const DEFAULT_FILTERS: Filters = {
   sport: "all",
@@ -38,10 +39,12 @@ export default function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const { currentUser, followUser, unfollowUser } = useAuth();
   const { games, getAllUsers, isLoading: dataLoading } = useData();
+  const { filter, tab: initialTab } = useLocalSearchParams<{ filter?: string, tab?: string }>();
 
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(initialTab ? parseInt(initialTab) : 0);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [filterVisible, setFilterVisible] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -52,6 +55,25 @@ export default function ExploreScreen() {
       .then((u) => setAllUsers(u.filter((user) => user.id !== currentUser?.id)))
       .finally(() => setUsersLoading(false));
   }, [getAllUsers, currentUser?.id]);
+
+  useEffect(() => {
+    if (filter) {
+      setCategoryFilter(filter);
+      // If it's a sport, set the sport filter
+      if (SPORTS.some(s => s.id === filter)) {
+        setFilters(prev => ({ ...prev, sport: filter }));
+      }
+    } else {
+       setCategoryFilter(null);
+       setFilters(DEFAULT_FILTERS);
+    }
+  }, [filter]);
+
+  useEffect(() => {
+    if (initialTab !== undefined) {
+       setTab(parseInt(initialTab));
+    }
+  }, [initialTab]);
 
   const filteredGames = useMemo(() => {
     return games
@@ -64,6 +86,7 @@ export default function ExploreScreen() {
           !g.city.toLowerCase().includes(search.toLowerCase())
         )
           return false;
+        
         if (filters.sport !== "all" && g.sport !== filters.sport) return false;
         if (filters.skillLevel !== "all" && g.skillLevel !== filters.skillLevel) return false;
         if (filters.ageGroup !== "all" && g.ageGroup !== filters.ageGroup) return false;
@@ -88,10 +111,25 @@ export default function ExploreScreen() {
         !u.sports.some((s) => s.toLowerCase().includes(search.toLowerCase()))
       )
         return false;
+      
       if (filters.sport !== "all" && !u.sports.includes(filters.sport)) return false;
+
+      // Player category filter logic
+      if (categoryFilter && tab === 1) {
+        if (categoryFilter === 'coaches' && u.role !== 'coach') return false;
+        if (categoryFilter === 'pros' && u.role !== 'pro') return false;
+        if (categoryFilter === 'verified' && u.verificationStatus !== 'verified') return false;
+        if (categoryFilter === 'legends' && u.gamesPlayed < 10) return false;
+        if (categoryFilter === 'multisport' && u.sports.length < 3) return false;
+        if (categoryFilter === 'rising' && u.rating < 4.5) return false;
+        if (categoryFilter === 'active' && u.gamesPlayed < 5) return false;
+        if (categoryFilter === 'consistency' && u.gamesPlayed < 8) return false;
+        if (categoryFilter === 'friendly' && u.role !== 'player') return false;
+      }
+
       return true;
     });
-  }, [allUsers, search, filters]);
+  }, [allUsers, search, filters, categoryFilter, tab]);
 
   const rosterUsers = useMemo(() => {
     if (!currentUser) return [];
@@ -179,9 +217,24 @@ export default function ExploreScreen() {
           onChange={(i) => {
             setTab(i);
             setSearch("");
+            setCategoryFilter(null);
+            setFilters(DEFAULT_FILTERS);
           }}
         />
       </View>
+
+      {(categoryFilter || activeFilterCount > 0) && !search && (
+         <View style={styles.activeFilters}>
+            <View style={[styles.filterChip, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}>
+               <Text style={[styles.filterChipText, { color: colors.primary }]}>
+                  {categoryFilter ? (SPORTS.find(s => s.id === categoryFilter)?.name || categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)) : `${activeFilterCount} Filters`}
+               </Text>
+               <Pressable onPress={() => { setCategoryFilter(null); setFilters(DEFAULT_FILTERS); router.setParams({ filter: undefined }); }}>
+                  <Feather name="x" size={14} color={colors.primary} />
+               </Pressable>
+            </View>
+         </View>
+      )}
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -190,59 +243,46 @@ export default function ExploreScreen() {
             Loading...
           </Text>
         </View>
-      ) : tab === 0 ? (
-        <FlatList
-          data={filteredGames}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => <GameCard game={item} />}
-          ListEmptyComponent={
-            <EmptyState
-              icon="calendar"
-              title="No games found"
-              subtitle="Try adjusting your search or filters to find more games"
-            />
-          }
-        />
-      ) : tab === 1 ? (
-        <FlatList
-          data={filteredPlayers}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <PlayerCard
-              user={item}
-              onFollow={() => handleFollow(item.id)}
-              isFollowing={currentUser?.followingIds.includes(item.id)}
-            />
-          )}
-          ListEmptyComponent={
-            <EmptyState
-              icon="users"
-              title="No players found"
-              subtitle="Try adjusting your search or sport filter"
-            />
-          }
-        />
       ) : (
         <FlatList
-          data={rosterUsers.filter((u) =>
-            search
-              ? u.name.toLowerCase().includes(search.toLowerCase()) ||
-                u.username.toLowerCase().includes(search.toLowerCase())
-              : true
-          )}
+          data={
+            tab === 0 
+              ? filteredGames 
+              : tab === 1 
+                ? filteredPlayers 
+                : rosterUsers.filter(u => search ? u.name.toLowerCase().includes(search.toLowerCase()) || u.username.toLowerCase().includes(search.toLowerCase()) : true)
+          }
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => <RosterCard user={item} colors={colors} onUnfollow={() => handleFollow(item.id)} />}
+          ListHeaderComponent={
+            tab !== 2 && !search && activeFilterCount === 0 && !categoryFilter ? (
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                  {tab === 0 ? "Popular Games" : "Featured Players"}
+                </Text>
+                <Pressable onPress={() => router.push({ pathname: "/(tabs)/explore/categories", params: { type: tab === 0 ? 'games' : 'players' } })}>
+                  <Text style={[styles.viewAll, { color: colors.primary }]}>View All</Text>
+                </Pressable>
+              </View>
+            ) : null
+          }
+          renderItem={({ item }) => {
+            if (tab === 0) return <GameCard game={item as any} />;
+            if (tab === 1) return (
+              <PlayerCard
+                user={item as User}
+                onFollow={() => handleFollow(item.id)}
+                isFollowing={currentUser?.followingIds.includes(item.id)}
+              />
+            );
+            return <RosterCard user={item as User} colors={colors} onUnfollow={() => handleFollow(item.id)} />;
+          }}
           ListEmptyComponent={
             <EmptyState
-              icon="users"
-              title="Your roster is empty"
-              subtitle="Follow players to add them to your roster. Visit the Players tab to discover people to play with."
+              icon={tab === 0 ? "calendar" : "users"}
+              title={tab === 0 ? "No games found" : tab === 1 ? "No players found" : "Your roster is empty"}
+              subtitle={tab === 2 ? "Follow players to add them to your roster." : "Try adjusting your search or filters"}
             />
           }
         />
@@ -382,6 +422,21 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
     paddingTop: 4,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+  },
+  viewAll: {
+    fontSize: 14,
+    fontFamily: 'Inter_600SemiBold',
+  },
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -392,4 +447,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Inter_400Regular",
   },
+  activeFilters: {
+     paddingHorizontal: 20,
+     paddingBottom: 12,
+     flexDirection: 'row',
+  },
+  filterChip: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     gap: 8,
+     paddingHorizontal: 12,
+     paddingVertical: 6,
+     borderRadius: 20,
+     borderWidth: 1,
+  },
+  filterChipText: {
+     fontSize: 13,
+     fontFamily: 'Inter_600SemiBold',
+  }
 });

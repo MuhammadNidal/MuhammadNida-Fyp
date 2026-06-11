@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SportBadge } from "./SportBadge";
 import { useColors } from "@/hooks/useColors";
 import { Game } from "@/types";
@@ -34,98 +34,123 @@ export function GameCard({ game, hostName }: GameCardProps) {
         {
           backgroundColor: colors.card,
           borderColor: colors.border,
-          opacity: pressed ? 0.93 : 1,
+          opacity: pressed ? 0.95 : 1,
         },
       ]}
     >
-      <View style={styles.top}>
-        <SportBadge sport={game.sport} type={game.type} small />
-        {game.isPaid && (
-          <View style={[styles.pricePill, { backgroundColor: colors.primary + "18" }]}> 
-            <Text style={[styles.priceText, { color: colors.primary }]}> 
-              ${game.price}
+      <View style={styles.imageContainer}>
+        {game.imageUrl ? (
+          <Image source={{ uri: game.imageUrl }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <View style={[styles.imagePlaceholder, { backgroundColor: colors.muted }]}>
+            <Feather name="image" size={32} color={colors.mutedForeground} />
+          </View>
+        )}
+        <View style={styles.imageOverlay}>
+          <SportBadge sport={game.sport} type={game.type} small />
+          {game.isPaid ? (
+            <View style={[styles.pricePill, { backgroundColor: "rgba(0,0,0,0.6)" }]}>
+              <Text style={styles.priceTextOverlay}>${game.price}</Text>
+            </View>
+          ) : (
+            <View style={[styles.pricePill, { backgroundColor: "#16A34A" }]}>
+              <Text style={styles.priceTextOverlay}>Free</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      <View style={styles.content}>
+        <Text style={[styles.title, { color: colors.foreground }]} numberOfLines={1}>
+          {game.title}
+        </Text>
+
+        <View style={styles.meta}>
+          <View style={styles.metaItem}>
+            <Feather name="calendar" size={12} color={colors.mutedForeground} />
+            <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
+              {formatDate(game.date)} · {game.startTime}
             </Text>
           </View>
-        )}
-        {!game.isPaid && (
-          <View style={[styles.pricePill, { backgroundColor: "#F0FDF4" }]}> 
-            <Text style={[styles.priceText, { color: colors.primary }]}>Free</Text>
+          <View style={styles.metaItem}>
+            <Feather name="map-pin" size={12} color={colors.mutedForeground} />
+            <Text style={[styles.metaText, { color: colors.mutedForeground }]} numberOfLines={1}>
+              {game.city}
+            </Text>
           </View>
-        )}
-      </View>
-
-      <Text style={[styles.title, { color: colors.foreground }]} numberOfLines={2}>
-        {game.title}
-      </Text>
-
-      <View style={styles.meta}>
-        <View style={styles.metaItem}>
-          <Feather name="calendar" size={13} color={colors.mutedForeground} />
-          <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
-            {formatDate(game.date)} · {game.startTime}
-          </Text>
         </View>
-        <View style={styles.metaItem}>
-          <Feather name="map-pin" size={13} color={colors.mutedForeground} />
-          <Text style={[styles.metaText, { color: colors.mutedForeground }]} numberOfLines={1}>
-            {game.city}
-          </Text>
-        </View>
-      </View>
 
-      <View style={styles.footer}>
-        <View style={styles.metaItem}>
-          <Feather name="users" size={13} color={colors.mutedForeground} />
-          <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
-            {game.participants.length}/{game.maxPlayers}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.spotsPill,
-            { backgroundColor: isFull ? "#EF444420" : colors.primary + "18" },
-          ]}
-        >
-          <Text
+        <View style={styles.footer}>
+          <View style={styles.metaItem}>
+            <Feather name="users" size={12} color={colors.mutedForeground} />
+            <Text style={[styles.metaText, { color: colors.mutedForeground }]}>
+              {game.participants.length}/{game.maxPlayers}
+            </Text>
+          </View>
+          <View
             style={[
-              styles.spotsText,
-              { color: isFull ? "#EF4444" : colors.primary },
+              styles.spotsPill,
+              { backgroundColor: isFull ? "#EF444415" : colors.primary + "15" },
             ]}
           >
-            {isFull ? "Full" : `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left`}
-          </Text>
+            <Text
+              style={[
+                styles.spotsText,
+                { color: isFull ? "#EF4444" : colors.primary },
+              ]}
+            >
+              {isFull ? "Full" : `${spotsLeft} left`}
+            </Text>
+          </View>
         </View>
       </View>
-
-      {hostName && (
-        <Text style={[styles.host, { color: colors.mutedForeground }]}>
-          by {hostName}
-        </Text>
-      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
-    gap: 10,
+    marginBottom: 16,
+    overflow: "hidden",
+    height: 280,
   },
-  top: {
+  imageContainer: {
+    height: "60%",
+    width: "100%",
+    position: "relative",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  imagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 12,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  content: {
+    height: "40%",
+    padding: 14,
+    justifyContent: "space-between",
+  },
   title: {
-    fontSize: 16,
-    fontFamily: "Inter_600SemiBold",
-    lineHeight: 22,
+    fontSize: 17,
+    fontFamily: "Inter_700Bold",
   },
   meta: {
-    gap: 5,
+    gap: 4,
   },
   metaItem: {
     flexDirection: "row",
@@ -143,25 +168,21 @@ const styles = StyleSheet.create({
   },
   pricePill: {
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingVertical: 5,
+    borderRadius: 12,
   },
-  priceText: {
+  priceTextOverlay: {
     fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Inter_700Bold",
+    color: "#fff",
   },
   spotsPill: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 20,
+    borderRadius: 10,
   },
   spotsText: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Inter_600SemiBold",
-  },
-  host: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-    marginTop: -4,
   },
 });

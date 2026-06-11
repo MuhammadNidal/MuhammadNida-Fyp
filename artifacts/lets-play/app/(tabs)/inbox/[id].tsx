@@ -46,6 +46,10 @@ export default function ChatScreen() {
   const otherUser = allUsers.find((u) => u.id === otherId);
   const messages = [...conversation.messages].reverse();
 
+  const displayName = conversation.type === "group" 
+    ? (conversation.title || "Group Chat") 
+    : (otherUser?.name || "Unknown Player");
+
   const handleSend = async () => {
     const text = messageText.trim();
     if (!text) return;
@@ -60,18 +64,32 @@ export default function ChatScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color={colors.foreground} />
         </Pressable>
-        {otherUser && (
-          <Pressable
-            onPress={() => router.push(`/(tabs)/explore/players/${otherUser.id}`)}
-            style={styles.headerUser}
-          >
-            <Avatar name={otherUser.name} avatarUrl={otherUser.avatarUrl} role={otherUser.role} size={36} />
-            <View>
-              <Text style={[styles.headerName, { color: colors.foreground }]}>{otherUser.name}</Text>
+        <Pressable
+          onPress={() => {
+            if (conversation.type === "direct" && otherUser) {
+              router.push(`/(tabs)/explore/players/${otherUser.id}`);
+            }
+          }}
+          style={styles.headerUser}
+        >
+          <Avatar 
+            name={displayName} 
+            avatarUrl={conversation.type === "direct" ? otherUser?.avatarUrl : undefined} 
+            role={conversation.type === "direct" ? otherUser?.role : undefined} 
+            size={38} 
+          />
+          <View>
+            <Text style={[styles.headerName, { color: colors.foreground }]}>{displayName}</Text>
+            {conversation.type === "direct" && otherUser && (
               <Text style={[styles.headerSub, { color: colors.mutedForeground }]}>@{otherUser.username}</Text>
-            </View>
-          </Pressable>
-        )}
+            )}
+            {conversation.type === "group" && (
+              <Text style={[styles.headerSub, { color: colors.mutedForeground }]}>
+                {conversation.participantIds.length} members
+              </Text>
+            )}
+          </View>
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView
@@ -85,13 +103,22 @@ export default function ChatScreen() {
           inverted
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.messagesList}
-          renderItem={({ item }) => (
-            <MessageBubble
-              content={item.content}
-              isMine={item.senderId === currentUser.id}
-              createdAt={item.createdAt}
-            />
-          )}
+          renderItem={({ item }) => {
+            const sender = allUsers.find(u => u.id === item.senderId);
+            const showSenderInfo = conversation.type === "group" && item.senderId !== currentUser.id;
+            
+            return (
+              <MessageBubble
+                content={item.content}
+                isMine={item.senderId === currentUser.id}
+                createdAt={item.createdAt}
+                senderName={showSenderInfo ? sender?.name : undefined}
+                // We'll pass a new prop 'showAvatar' to MessageBubble if we want to show it there, 
+                // but the prompt says "direct message there is not need for the image show ni th chat"
+                // which implies hiding it in the bubble list.
+              />
+            );
+          }}
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>

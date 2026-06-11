@@ -77,9 +77,9 @@ export default function LoginScreen() {
       >
         <View style={styles.logoArea}>
           <View style={[styles.logoMark, { backgroundColor: colors.primary }]}> 
-            <Feather name="play" size={28} color="#fff" />
+            <Feather name="zap" size={32} color="#fff" />
           </View>
-          <Text style={[styles.appName, { color: colors.foreground }]}>Play Connect</Text>
+          <Text style={[styles.appName, { color: colors.foreground }]}>Playground</Text>
           <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
             Find your game. Meet your people.
           </Text>

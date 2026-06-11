@@ -16,7 +16,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.8,
     gamesPlayed: 142,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
   },
   {
     id: "user_sarah",
@@ -33,7 +33,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.9,
     gamesPlayed: 289,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
   },
   {
     id: "user_mike",
@@ -50,7 +50,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.2,
     gamesPlayed: 58,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
   },
   {
     id: "user_aisha",
@@ -67,7 +67,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.5,
     gamesPlayed: 34,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
   },
   {
     id: "user_carlos",
@@ -84,7 +84,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.7,
     gamesPlayed: 91,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face",
   },
   {
     id: "user_emma",
@@ -101,7 +101,7 @@ export const MOCK_USERS: User[] = [
     rating: 4.3,
     gamesPlayed: 76,
     onboardingComplete: true,
-    avatarUrl: undefined,
+    avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face",
   },
 ];
 
@@ -133,6 +133,7 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=80",
     messages: [
       {
         id: "msg_1_1",
@@ -171,6 +172,7 @@ export const MOCK_GAMES: Game[] = [
     isPaid: true,
     price: 45,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&q=80",
     messages: [
       {
         id: "msg_2_1",
@@ -201,6 +203,7 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80",
     messages: [],
   },
   {
@@ -223,6 +226,7 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=800&q=80",
     messages: [],
   },
   {
@@ -246,6 +250,7 @@ export const MOCK_GAMES: Game[] = [
     isPaid: true,
     price: 30,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=800&q=80",
     messages: [],
   },
   {
@@ -268,6 +273,7 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1541278107931-e006523892df?w=800&q=80",
     messages: [],
   },
   {
@@ -290,6 +296,7 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1613771404721-1f92d799e49f?w=800&q=80",
     messages: [],
   },
   {
@@ -312,8 +319,32 @@ export const MOCK_GAMES: Game[] = [
     type: "game",
     isPaid: false,
     status: "active",
+    imageUrl: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&q=80",
     messages: [],
   },
+  {
+  id: "game_9",
+  createdBy: "user_ali",
+  organizerId: "user_ali",
+  sport: "cricket",
+  title: "Weekend Cricket Match",
+  description: "Friendly 20-over cricket match at Central Sports Ground. Looking for players to complete both teams. All skill levels are welcome. Bring your own gear if possible.",
+  date: futureDate(5, 7),
+  startTime: "7:00 AM",
+  endTime: "11:00 AM",
+  locationName: "Central Sports Ground",
+  city: "Karachi, Pakistan",
+  ageGroup: "adult",
+  participationGroup: "all",
+  skillLevel: "intermediate",
+  maxPlayers: 22,
+  participants: ["user_ali", "user_ahmed", "user_hassan"],
+  type: "game",
+  isPaid: false,
+  status: "active",
+  imageUrl: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80",
+  messages: [],
+}
 ];
 
 export const MOCK_CONVERSATIONS: Conversation[] = [

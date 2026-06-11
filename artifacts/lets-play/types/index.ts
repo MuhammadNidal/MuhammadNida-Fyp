@@ -46,6 +46,7 @@ export interface Game {
   price?: number;
   status: "active" | "canceled";
   messages: GameMessage[];
+  imageUrl?: string;
 }
 
 export interface DirectMessage {

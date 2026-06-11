@@ -18,37 +18,21 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
+const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face";
+
 export function Avatar({ name, avatarUrl, size = 44, role }: AvatarProps) {
   const colors = useColors();
   const fontSize = Math.max(12, Math.floor(size * 0.38));
   const roleColor = role === "pro" ? "#F97316" : role === "coach" ? "#8B5CF6" : colors.primary;
 
+  const displayUrl = avatarUrl || DEFAULT_AVATAR;
+
   return (
     <View style={[styles.wrapper, { width: size, height: size, borderRadius: size / 2 }]}>
-      {avatarUrl ? (
-        <Image
-          source={{ uri: avatarUrl }}
-          style={{ width: size, height: size, borderRadius: size / 2 }}
-        />
-      ) : (
-        <View
-          style={[
-            styles.placeholder,
-            {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              backgroundColor: roleColor + "20",
-              borderWidth: 1.5,
-              borderColor: roleColor + "40",
-            },
-          ]}
-        >
-          <Text style={[styles.initials, { fontSize, color: roleColor }]}> 
-            {getInitials(name)}
-          </Text>
-        </View>
-      )}
+      <Image
+        source={{ uri: displayUrl }}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+      />
       {role && role !== "player" && (
         <View
           style={[

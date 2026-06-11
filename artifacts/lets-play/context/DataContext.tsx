@@ -41,7 +41,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         await AsyncStorage.setItem(GAMES_KEY, JSON.stringify(MOCK_GAMES));
         setGames(MOCK_GAMES);
       } else {
-        setGames(JSON.parse(gamesRaw));
+        const storedGames: Game[] = JSON.parse(gamesRaw);
+        // Merge imageUrl from MOCK_GAMES if missing in stored games
+        const updatedGames = storedGames.map(sg => {
+          const mock = MOCK_GAMES.find(mg => mg.id === sg.id);
+          if (mock && !sg.imageUrl) {
+            return { ...sg, imageUrl: mock.imageUrl };
+          }
+          return sg;
+        });
+        setGames(updatedGames);
       }
 
       const convosRaw = await AsyncStorage.getItem(CONVOS_KEY);
